@@ -1,0 +1,378 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C75BB25B2C8120FF001D3B10 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75BB25A2C8120FF001D3B10 /* main.cpp */; };
+		C75BB2632C812373001D3B10 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C75BB2622C812373001D3B10 /* Foundation.framework */; };
+		C75BB2652C812379001D3B10 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C75BB2642C812379001D3B10 /* QuartzCore.framework */; };
+		C75BB2672C812381001D3B10 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C75BB2662C812381001D3B10 /* Metal.framework */; };
+		C75BB2692C8135E2001D3B10 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C75BB2682C8135E2001D3B10 /* AppKit.framework */; };
+		C75BB26B2C8135E8001D3B10 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C75BB26A2C8135E8001D3B10 /* MetalKit.framework */; };
+		C75BB2722C813BD4001D3B10 /* MyAppDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75BB2702C813BD4001D3B10 /* MyAppDelegate.cpp */; };
+		C75BB2742C813C65001D3B10 /* BuildMetal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75BB2732C813C65001D3B10 /* BuildMetal.cpp */; };
+		C75BB2782C813CD3001D3B10 /* MyMTKViewDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75BB2762C813CD3001D3B10 /* MyMTKViewDelegate.cpp */; };
+		C75BB27B2C813D6C001D3B10 /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75BB2792C813D6C001D3B10 /* Renderer.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C75BB2552C8120FF001D3B10 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		C75BB2572C8120FF001D3B10 /* Point_Cloud_Renderer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Point_Cloud_Renderer; sourceTree = BUILT_PRODUCTS_DIR; };
+		C75BB25A2C8120FF001D3B10 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		C75BB2622C812373001D3B10 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		C75BB2642C812379001D3B10 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		C75BB2662C812381001D3B10 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		C75BB2682C8135E2001D3B10 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		C75BB26A2C8135E8001D3B10 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		C75BB2702C813BD4001D3B10 /* MyAppDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MyAppDelegate.cpp; sourceTree = "<group>"; };
+		C75BB2712C813BD4001D3B10 /* MyAppDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MyAppDelegate.hpp; sourceTree = "<group>"; };
+		C75BB2732C813C65001D3B10 /* BuildMetal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BuildMetal.cpp; sourceTree = "<group>"; };
+		C75BB2762C813CD3001D3B10 /* MyMTKViewDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MyMTKViewDelegate.cpp; sourceTree = "<group>"; };
+		C75BB2772C813CD3001D3B10 /* MyMTKViewDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MyMTKViewDelegate.hpp; sourceTree = "<group>"; };
+		C75BB2792C813D6C001D3B10 /* Renderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = "<group>"; };
+		C75BB27A2C813D6C001D3B10 /* Renderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = "<group>"; };
+		C75BB27D2C8141F0001D3B10 /* ProjectConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProjectConstants.h; sourceTree = "<group>"; };
+		C75BB27F2C814534001D3B10 /* Core.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Core.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C75BB2542C8120FF001D3B10 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C75BB26B2C8135E8001D3B10 /* MetalKit.framework in Frameworks */,
+				C75BB2692C8135E2001D3B10 /* AppKit.framework in Frameworks */,
+				C75BB2672C812381001D3B10 /* Metal.framework in Frameworks */,
+				C75BB2652C812379001D3B10 /* QuartzCore.framework in Frameworks */,
+				C75BB2632C812373001D3B10 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C75BB24E2C8120FF001D3B10 = {
+			isa = PBXGroup;
+			children = (
+				C75BB2592C8120FF001D3B10 /* Point_Cloud_Renderer */,
+				C75BB2582C8120FF001D3B10 /* Products */,
+				C75BB2612C812373001D3B10 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		C75BB2582C8120FF001D3B10 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C75BB2572C8120FF001D3B10 /* Point_Cloud_Renderer */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C75BB2592C8120FF001D3B10 /* Point_Cloud_Renderer */ = {
+			isa = PBXGroup;
+			children = (
+				C75BB27E2C814523001D3B10 /* Core */,
+				C75BB27C2C8141D4001D3B10 /* Constants */,
+				C75BB2752C813CB3001D3B10 /* Structures */,
+				C75BB25A2C8120FF001D3B10 /* main.cpp */,
+				C75BB2702C813BD4001D3B10 /* MyAppDelegate.cpp */,
+				C75BB2712C813BD4001D3B10 /* MyAppDelegate.hpp */,
+				C75BB2732C813C65001D3B10 /* BuildMetal.cpp */,
+				C75BB2792C813D6C001D3B10 /* Renderer.cpp */,
+				C75BB27A2C813D6C001D3B10 /* Renderer.hpp */,
+			);
+			path = Point_Cloud_Renderer;
+			sourceTree = "<group>";
+		};
+		C75BB2612C812373001D3B10 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C75BB26A2C8135E8001D3B10 /* MetalKit.framework */,
+				C75BB2682C8135E2001D3B10 /* AppKit.framework */,
+				C75BB2662C812381001D3B10 /* Metal.framework */,
+				C75BB2642C812379001D3B10 /* QuartzCore.framework */,
+				C75BB2622C812373001D3B10 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C75BB2752C813CB3001D3B10 /* Structures */ = {
+			isa = PBXGroup;
+			children = (
+				C75BB2762C813CD3001D3B10 /* MyMTKViewDelegate.cpp */,
+				C75BB2772C813CD3001D3B10 /* MyMTKViewDelegate.hpp */,
+			);
+			path = Structures;
+			sourceTree = "<group>";
+		};
+		C75BB27C2C8141D4001D3B10 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				C75BB27D2C8141F0001D3B10 /* ProjectConstants.h */,
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
+		C75BB27E2C814523001D3B10 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				C75BB27F2C814534001D3B10 /* Core.h */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C75BB2562C8120FF001D3B10 /* Point_Cloud_Renderer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C75BB25E2C8120FF001D3B10 /* Build configuration list for PBXNativeTarget "Point_Cloud_Renderer" */;
+			buildPhases = (
+				C75BB2532C8120FF001D3B10 /* Sources */,
+				C75BB2542C8120FF001D3B10 /* Frameworks */,
+				C75BB2552C8120FF001D3B10 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Point_Cloud_Renderer;
+			productName = Point_Cloud_Renderer;
+			productReference = C75BB2572C8120FF001D3B10 /* Point_Cloud_Renderer */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C75BB24F2C8120FF001D3B10 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					C75BB2562C8120FF001D3B10 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = C75BB2522C8120FF001D3B10 /* Build configuration list for PBXProject "Point_Cloud_Renderer" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C75BB24E2C8120FF001D3B10;
+			productRefGroup = C75BB2582C8120FF001D3B10 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C75BB2562C8120FF001D3B10 /* Point_Cloud_Renderer */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C75BB2532C8120FF001D3B10 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C75BB2722C813BD4001D3B10 /* MyAppDelegate.cpp in Sources */,
+				C75BB27B2C813D6C001D3B10 /* Renderer.cpp in Sources */,
+				C75BB2742C813C65001D3B10 /* BuildMetal.cpp in Sources */,
+				C75BB2782C813CD3001D3B10 /* MyMTKViewDelegate.cpp in Sources */,
+				C75BB25B2C8120FF001D3B10 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		C75BB25C2C8120FF001D3B10 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		C75BB25D2C8120FF001D3B10 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		C75BB25F2C8120FF001D3B10 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = A6LB43CFG6;
+				ENABLE_HARDENED_RUNTIME = YES;
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					"$[PROJECT_DIR]/dependencies/metal-cpp",
+					"$[PROJECT_DIR]/dependencies/metal-cpp-extensions",
+					"$[PROJECT_DIR]/Point_Cloud_Renderer",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		C75BB2602C8120FF001D3B10 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = A6LB43CFG6;
+				ENABLE_HARDENED_RUNTIME = YES;
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					"$[PROJECT_DIR]/dependencies/metal-cpp",
+					"$[PROJECT_DIR]/dependencies/metal-cpp-extensions",
+					"$[PROJECT_DIR]/Point_Cloud_Renderer",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C75BB2522C8120FF001D3B10 /* Build configuration list for PBXProject "Point_Cloud_Renderer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C75BB25C2C8120FF001D3B10 /* Debug */,
+				C75BB25D2C8120FF001D3B10 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C75BB25E2C8120FF001D3B10 /* Build configuration list for PBXNativeTarget "Point_Cloud_Renderer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C75BB25F2C8120FF001D3B10 /* Debug */,
+				C75BB2602C8120FF001D3B10 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C75BB24F2C8120FF001D3B10 /* Project object */;
+}
