@@ -7,9 +7,11 @@
 
 #pragma once
 
-#include <MetalKit/MetalKit.hpp>
-
+#include "Core/Core.h"
 #include "Renderer/Data/Constants.h"
+
+FD_MTL
+FD_MTK
 
 namespace PCR
 {
@@ -31,9 +33,12 @@ namespace PCR
         
         MTL::Library* _pShaderLibrary;
         
-        MTL::Buffer* _pVertexBuffer;
+        MTL::DepthStencilState* _pDepthStencilState;
+        
+        MTL::Buffer* _pVertexDataBuffer;
+        MTL::Buffer* _pInstanceDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
+        MTL::Buffer* _pCameraDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
         MTL::Buffer* _pIndexBuffer;
-        MTL::Buffer* _pInstanceDataBuffers[MAX_FRAMES_IN_FLIGHT];
         
         int _frame;
         float _angle;
@@ -43,5 +48,7 @@ namespace PCR
         void buildShaders();
         
         void buildBuffers();
+        
+        void buildDepthStencilStates();
     };
 }

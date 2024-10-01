@@ -10,19 +10,13 @@
 #include <cassert>
 
 #include <AppKit/AppKit.hpp>
+#include <MetalKit/MetalKit.hpp>
 #include <simd/simd.h>
+
 #include "Renderer/Structures/FrameData.h"
-
-#include "Core/Core.h"
-
-namespace PCR
-{
-    struct InstanceData
-    {
-        simd::float4x4 transform;
-        simd::float4 color;
-    };
-}
+#include "Renderer/Structures/InstanceData.h"
+#include "Renderer/Structures/CameraData.h"
+#include "Math/Utility.hpp"
 
 namespace PCR
 {
@@ -33,6 +27,7 @@ namespace PCR
     {
         _pCommandQueue = _pDevice->newCommandQueue();
         buildShaders();
+        buildDepthStencilStates();
         buildBuffers();
         
         _semaphore = dispatch_semaphore_create( MAX_FRAMES_IN_FLIGHT );
@@ -41,7 +36,8 @@ namespace PCR
     Renderer::~Renderer()
     {
         _pShaderLibrary->release();
-        _pVertexBuffer->release();
+        _pDepthStencilState->release();
+        _pVertexDataBuffer->release();
         _pIndexBuffer->release();
         for ( int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i )
         {
@@ -70,6 +66,13 @@ namespace PCR
         const float scl = 0.1f;
         InstanceData* pInstanceData = reinterpret_cast< InstanceData* >( pCurrentInstanceDataBuffer->contents() );
         
+        simd::float3 cameraPosition{ 0.0f, 0.0f, -5.0f };
+        
+        simd::float4x4 rt = Math::makeTranslate( cameraPosition );
+        simd::float4x4 rr = Math::makeYRotate( -_angle );
+        simd::float4x4 rtInv = Math::makeTranslate( { -cameraPosition.x, -cameraPosition.y, -cameraPosition.z } );
+        simd::float4x4 fullObjectRot = rt * rr * rtInv;
+        
         // Instance Data
         for ( size_t i = 0; i < MAX_NUM_INSTANCES; ++i )
         {
@@ -77,12 +80,13 @@ namespace PCR
             float xoff = ( iDivNumInstances * 2.0f - 1.0f ) + ( 1.0f / MAX_NUM_INSTANCES );
             float yoff = sin( ( iDivNumInstances + _angle ) * 2.0f * M_PI );
             
+            simd::float4x4 translate = Math::makeTranslate( cameraPosition + simd::float3{ xoff, yoff, 0.0f } );
+            simd::float4x4 zRotation = Math::makeZRotate( _angle );
+            simd::float4x4 yRotation = Math::makeZRotate( _angle );
+            simd::float4x4 scale = Math::makeScale( simd::float3{ scl, scl, scl } );
+            
             // Instance Transform
-            pInstanceData[ i ].transform = {
-                (simd::float4){ scl * sinf( _angle ), scl *  cosf( _angle ), 0.f, 0.f },
-                (simd::float4){ scl * cosf( _angle ), scl * -sinf( _angle ), 0.f, 0.f },
-                (simd::float4){ 0.f,                  0.f,                   scl, 0.f },
-                (simd::float4){ xoff,                 yoff,                  0.f, 1.f } };
+            pInstanceData[ i ].transform = fullObjectRot * translate * yRotation * zRotation * scale;
 
             float r = iDivNumInstances;
             float g = 1.0f - r;
@@ -93,16 +97,30 @@ namespace PCR
         }
         pCurrentInstanceDataBuffer->didModifyRange( NS::Range::Make( 0, pCurrentInstanceDataBuffer->length() ) );
         
+        // Update Camera State
+        
+        MTL::Buffer* pCurrentCameraBuffer = _pCameraDataBuffers[ _frame ];
+        auto* pCameraData = reinterpret_cast< CameraData* >( pCurrentCameraBuffer->contents() );
+        pCameraData->perspectiveTransform = Math::makePerspective( 45.0f * M_PI / 180.0f, 1.0f, 0.03f, 500.0f );
+        pCameraData->worldTransform = Math::makeIdentity();
+        pCurrentCameraBuffer->didModifyRange( NS::Range::Make( 0, pCurrentCameraBuffer->length() ) );
+        
+        // Begin Render Pass
+        
         MTL::RenderPassDescriptor* pRpd = pView->currentRenderPassDescriptor();
         MTL::RenderCommandEncoder* pEnc = pCmd->renderCommandEncoder( pRpd );
         
         pEnc->setRenderPipelineState( _pRenderPipelineStateObject );
-        pEnc->setVertexBuffer( _pVertexBuffer, 0, 0 );
+        pEnc->setVertexBuffer( _pVertexDataBuffer, 0, 0 );
         pEnc->setVertexBuffer( pCurrentInstanceDataBuffer, 0, 1 );
+        pEnc->setVertexBuffer( pCurrentCameraBuffer, 0, 2 );
+        
+        pEnc->setCullMode( MTL::CullModeBack );
+        pEnc->setFrontFacingWinding( MTL::Winding::WindingCounterClockwise );
         
         // Draw-call
         pEnc->drawIndexedPrimitives( MTL::PrimitiveType::PrimitiveTypeTriangle,
-                                     /* indexCount */ 6,
+                                     /* indexCount */ 6 * 6,
                                      MTL::IndexType::IndexTypeUInt16,
                                      _pIndexBuffer,
                                      /* indexBufferOffset */ 0,
@@ -137,16 +155,28 @@ namespace PCR
                 float4x4 transform;
                 float4 color;
             };
+        
+            struct CameraData
+            {
+                float4x4 perspectiveTransform;
+                float4x4 worldTransform;
+            };
 
-            v2f vertex vertexMain( uint vertexId [[vertex_id]],
+            v2f vertex vertexMain( uint vertexId   [[vertex_id]],
                                    uint instanceID [[instance_id]],
-                                   device const VertexData* vertexData [[buffer(0)]],
-                                   device const InstanceData* instanceData [[buffer(1)]] )
+                                   device const VertexData*   vertexData   [[buffer(0)]],
+                                   device const InstanceData* instanceData [[buffer(1)]],
+                                   device const CameraData*   cameraData   [[buffer(2)]] )
             {
                 v2f o;
+        
                 float4 pos = float4( vertexData[ vertexId ].position, 1.0 );
-                o.position = instanceData[ instanceID ].transform * pos;
+                pos = instanceData[ instanceID ].transform * pos;
+                pos = cameraData->perspectiveTransform * cameraData->worldTransform * pos;
+        
+                o.position = pos;
                 o.color = half3 ( instanceData[ instanceID ].color.rgb );
+        
                 return o;
             }
 
@@ -189,28 +219,48 @@ namespace PCR
     {
         constexpr float s = 0.5f;
         
-        constexpr simd::float3 vertices[4] = {
+        constexpr simd::float3 vertices[] = {
             { -s, -s, +s },
             { +s, -s, +s },
             { +s, +s, +s },
-            { -s, +s, +s }
+            { -s, +s, +s },
+
+            { -s, -s, -s },
+            { -s, +s, -s },
+            { +s, +s, -s },
+            { +s, -s, -s }
         };
         
-        constexpr uint16_t indices[6] = {
-            0, 1, 2,
-            2, 3, 0
+        constexpr uint16_t indices[] = {
+            0, 1, 2, /* front */
+            2, 3, 0,
+
+            1, 7, 6, /* right */
+            6, 2, 1,
+
+            7, 4, 5, /* back */
+            5, 6, 7,
+
+            4, 0, 3, /* left */
+            3, 5, 4,
+
+            3, 2, 6, /* top */
+            6, 5, 3,
+
+            4, 7, 1, /* bottom */
+            1, 0, 4
         };
         
         constexpr size_t vertexDataSize = sizeof( vertices );
         constexpr size_t indexDataSize = sizeof( indices );
         
-        _pVertexBuffer = _pDevice->newBuffer( vertexDataSize, MTL::ResourceStorageModeManaged );
+        _pVertexDataBuffer = _pDevice->newBuffer( vertexDataSize, MTL::ResourceStorageModeManaged );
         _pIndexBuffer = _pDevice->newBuffer( indexDataSize, MTL::ResourceStorageModeManaged );
         
-        memcpy( _pVertexBuffer->contents(), vertices, vertexDataSize );
+        memcpy( _pVertexDataBuffer->contents(), vertices, vertexDataSize );
         memcpy( _pIndexBuffer->contents(), indices, indexDataSize );
         
-        _pVertexBuffer->didModifyRange( NS::Range::Make( 0, _pVertexBuffer->length() ) );
+        _pVertexDataBuffer->didModifyRange( NS::Range::Make( 0, _pVertexDataBuffer->length() ) );
         _pIndexBuffer->didModifyRange( NS::Range::Make( 0, _pIndexBuffer->length() ) );
         
         constexpr size_t instanceDataSize = MAX_FRAMES_IN_FLIGHT * MAX_NUM_INSTANCES * sizeof( InstanceData );
@@ -218,5 +268,22 @@ namespace PCR
         {
             _pInstanceDataBuffers[ i ] = _pDevice->newBuffer( instanceDataSize, MTL::ResourceStorageModeManaged );
         }
+        
+        constexpr size_t cameraDataSize = MAX_FRAMES_IN_FLIGHT * sizeof( CameraData );
+        for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i )
+        {
+            _pCameraDataBuffers[ i ] = _pDevice->newBuffer( cameraDataSize, MTL::ResourceStorageModeManaged );
+        }
+    }
+    
+    void Renderer::buildDepthStencilStates()
+    {
+        MTL::DepthStencilDescriptor* pDepthStencilDescriptor = MTL::DepthStencilDescriptor::alloc()->init();
+        pDepthStencilDescriptor->setDepthCompareFunction( MTL::CompareFunction::CompareFunctionLess );
+        pDepthStencilDescriptor->setDepthWriteEnabled( true );
+        
+        _pDepthStencilState = _pDevice->newDepthStencilState( pDepthStencilDescriptor );
+        
+        pDepthStencilDescriptor->release();
     }
 }
