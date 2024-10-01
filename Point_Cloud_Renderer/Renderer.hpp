@@ -31,10 +31,9 @@ namespace PCR
         
         MTL::Library* _pShaderLibrary;
         
-        MTL::Buffer* _pArgBuffer;
-        MTL::Buffer* _pVertexPositionBuffer;
-        MTL::Buffer* _pVertexColorBuffer;
-        MTL::Buffer* _pFrameData[MAX_FRAMES_IN_FLIGHT];
+        MTL::Buffer* _pVertexBuffer;
+        MTL::Buffer* _pIndexBuffer;
+        MTL::Buffer* _pInstanceDataBuffers[MAX_FRAMES_IN_FLIGHT];
         
         int _frame;
         float _angle;
@@ -44,7 +43,5 @@ namespace PCR
         void buildShaders();
         
         void buildBuffers();
-        
-        void buildFrameData();
     };
 }
