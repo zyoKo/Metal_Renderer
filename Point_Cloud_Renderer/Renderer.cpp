@@ -10,10 +10,13 @@
 #include <cassert>
 
 #include <AppKit/AppKit.hpp>
+#include <MetalKit/MetalKit.hpp>
 #include <simd/simd.h>
-#include "Renderer/Structures/FrameData.h"
 
-#include "Core/Core.h"
+#include "Renderer/Structures/FrameData.h"
+#include "Renderer/Structures/InstanceData.h"
+#include "Renderer/Structures/CameraData.h"
+#include "Math/Utility.hpp"
 
 namespace PCR
 {
@@ -24,8 +27,8 @@ namespace PCR
     {
         _pCommandQueue = _pDevice->newCommandQueue();
         buildShaders();
+        buildDepthStencilStates();
         buildBuffers();
-        buildFrameData();
         
         _semaphore = dispatch_semaphore_create( MAX_FRAMES_IN_FLIGHT );
     }
@@ -33,12 +36,12 @@ namespace PCR
     Renderer::~Renderer()
     {
         _pShaderLibrary->release();
-        _pArgBuffer->release();
-        _pVertexColorBuffer->release();
-        _pVertexPositionBuffer->release();
+        _pDepthStencilState->release();
+        _pVertexDataBuffer->release();
+        _pIndexBuffer->release();
         for ( int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i )
         {
-            _pFrameData[ i ]->release();
+            _pInstanceDataBuffers[ i ]->release();
         }
         _pRenderPipelineStateObject->release();
         _pCommandQueue->release();
@@ -50,7 +53,7 @@ namespace PCR
         NS::AutoreleasePool* pPool = NS::AutoreleasePool::alloc()->init();
         
         _frame = (_frame + 1) % MAX_FRAMES_IN_FLIGHT;
-        MTL::Buffer* pCurrentFrameBuffer = _pFrameData[ _frame ];
+        MTL::Buffer* pCurrentInstanceDataBuffer = _pInstanceDataBuffers[ _frame ];
 
         MTL::CommandBuffer* pCmd = _pCommandQueue->commandBuffer();
         dispatch_semaphore_wait( _semaphore, DISPATCH_TIME_FOREVER );
@@ -58,21 +61,70 @@ namespace PCR
             dispatch_semaphore_signal( this->_semaphore );
         });
         
-        reinterpret_cast< FrameData* >( pCurrentFrameBuffer->contents() )->angle = ( _angle += 0.01f );
-        pCurrentFrameBuffer->didModifyRange( NS::Range::Make( 0, sizeof( FrameData ) ) );
+        _angle += 0.01f;
+        
+        const float scl = 0.1f;
+        InstanceData* pInstanceData = reinterpret_cast< InstanceData* >( pCurrentInstanceDataBuffer->contents() );
+        
+        simd::float3 cameraPosition{ 0.0f, 0.0f, -5.0f };
+        
+        simd::float4x4 rt = Math::makeTranslate( cameraPosition );
+        simd::float4x4 rr = Math::makeYRotate( -_angle );
+        simd::float4x4 rtInv = Math::makeTranslate( { -cameraPosition.x, -cameraPosition.y, -cameraPosition.z } );
+        simd::float4x4 fullObjectRot = rt * rr * rtInv;
+        
+        // Instance Data
+        for ( size_t i = 0; i < MAX_NUM_INSTANCES; ++i )
+        {
+            float iDivNumInstances = i / static_cast<float>( MAX_NUM_INSTANCES );
+            float xoff = ( iDivNumInstances * 2.0f - 1.0f ) + ( 1.0f / MAX_NUM_INSTANCES );
+            float yoff = sin( ( iDivNumInstances + _angle ) * 2.0f * M_PI );
+            
+            simd::float4x4 translate = Math::makeTranslate( cameraPosition + simd::float3{ xoff, yoff, 0.0f } );
+            simd::float4x4 zRotation = Math::makeZRotate( _angle );
+            simd::float4x4 yRotation = Math::makeZRotate( _angle );
+            simd::float4x4 scale = Math::makeScale( simd::float3{ scl, scl, scl } );
+            
+            // Instance Transform
+            pInstanceData[ i ].transform = fullObjectRot * translate * yRotation * zRotation * scale;
+
+            float r = iDivNumInstances;
+            float g = 1.0f - r;
+            float b = sinf( M_PI * 2.0f * iDivNumInstances );
+            
+            // Instance Color
+            pInstanceData[ i ].color = { r, g, b, 1.0f };
+        }
+        pCurrentInstanceDataBuffer->didModifyRange( NS::Range::Make( 0, pCurrentInstanceDataBuffer->length() ) );
+        
+        // Update Camera State
+        
+        MTL::Buffer* pCurrentCameraBuffer = _pCameraDataBuffers[ _frame ];
+        auto* pCameraData = reinterpret_cast< CameraData* >( pCurrentCameraBuffer->contents() );
+        pCameraData->perspectiveTransform = Math::makePerspective( 45.0f * M_PI / 180.0f, 1.0f, 0.03f, 500.0f );
+        pCameraData->worldTransform = Math::makeIdentity();
+        pCurrentCameraBuffer->didModifyRange( NS::Range::Make( 0, pCurrentCameraBuffer->length() ) );
+        
+        // Begin Render Pass
         
         MTL::RenderPassDescriptor* pRpd = pView->currentRenderPassDescriptor();
         MTL::RenderCommandEncoder* pEnc = pCmd->renderCommandEncoder( pRpd );
         
         pEnc->setRenderPipelineState( _pRenderPipelineStateObject );
-        pEnc->setVertexBuffer( _pArgBuffer, 0, 0 );
-        pEnc->useResource( _pVertexPositionBuffer, MTL::ResourceUsageRead );
-        pEnc->useResource( _pVertexColorBuffer, MTL::ResourceUsageRead );
+        pEnc->setVertexBuffer( _pVertexDataBuffer, 0, 0 );
+        pEnc->setVertexBuffer( pCurrentInstanceDataBuffer, 0, 1 );
+        pEnc->setVertexBuffer( pCurrentCameraBuffer, 0, 2 );
         
-        pEnc->setVertexBuffer( pCurrentFrameBuffer, 0, 1 );
+        pEnc->setCullMode( MTL::CullModeBack );
+        pEnc->setFrontFacingWinding( MTL::Winding::WindingCounterClockwise );
         
         // Draw-call
-        pEnc->drawPrimitives( MTL::PrimitiveType::PrimitiveTypeTriangle, NS::UInteger( 0 ), NS::UInteger( 3 ), NS::UInteger( 1 ) );
+        pEnc->drawIndexedPrimitives( MTL::PrimitiveType::PrimitiveTypeTriangle,
+                                     /* indexCount */ 6 * 6,
+                                     MTL::IndexType::IndexTypeUInt16,
+                                     _pIndexBuffer,
+                                     /* indexBufferOffset */ 0,
+                                     MAX_NUM_INSTANCES);
         
         pEnc->endEncoding();
         pCmd->presentDrawable( pView->currentDrawable() );
@@ -95,26 +147,36 @@ namespace PCR
         
             struct VertexData
             {
-                device float3* positions [[id(0)]];
-                device float3* colors [[id(1)]];
+                float3 position;
             };
         
-            struct FrameData
+            struct InstanceData
             {
-                float angle;
+                float4x4 transform;
+                float4 color;
+            };
+        
+            struct CameraData
+            {
+                float4x4 perspectiveTransform;
+                float4x4 worldTransform;
             };
 
-            v2f vertex vertexMain( uint vertexId [[vertex_id]],
-                                   device const VertexData* vertexData [[buffer(0)]],
-                                   constant FrameData* frameData [[buffer(1)]] )
+            v2f vertex vertexMain( uint vertexId   [[vertex_id]],
+                                   uint instanceID [[instance_id]],
+                                   device const VertexData*   vertexData   [[buffer(0)]],
+                                   device const InstanceData* instanceData [[buffer(1)]],
+                                   device const CameraData*   cameraData   [[buffer(2)]] )
             {
-                float a = frameData->angle;
-                float3x3 rotationMatrix = float3x3( sin( a ),  cos( a ), 0.0,
-                                                    cos( a ), -sin( a ), 0.0,
-                                                    0.0     , 0.0      , 1.0 );
                 v2f o;
-                o.position = float4( rotationMatrix * vertexData->positions[ vertexId ], 1.0 );
-                o.color = half3 ( vertexData->colors[ vertexId ] );
+        
+                float4 pos = float4( vertexData[ vertexId ].position, 1.0 );
+                pos = instanceData[ instanceID ].transform * pos;
+                pos = cameraData->perspectiveTransform * cameraData->worldTransform * pos;
+        
+                o.position = pos;
+                o.color = half3 ( instanceData[ instanceID ].color.rgb );
+        
                 return o;
             }
 
@@ -155,57 +217,73 @@ namespace PCR
     
     void Renderer::buildBuffers()
     {
-        constexpr size_t NumVertices = 3;
+        constexpr float s = 0.5f;
+        
+        constexpr simd::float3 vertices[] = {
+            { -s, -s, +s },
+            { +s, -s, +s },
+            { +s, +s, +s },
+            { -s, +s, +s },
 
-        constexpr simd::float3 positions[NumVertices] =
-        {
-            { -0.8f,  0.8f, 0.0f },
-            {  0.0f, -0.8f, 0.0f },
-            {  0.8f,  0.8f, 0.0f }
-        };
-
-        constexpr simd::float3 colors[NumVertices] =
-        {
-            {  1.0f, 0.3f, 0.2f },
-            {  0.8f, 1.0f, 0.0f },
-            {  0.8f, 0.0f, 1.0f }
+            { -s, -s, -s },
+            { -s, +s, -s },
+            { +s, +s, -s },
+            { +s, -s, -s }
         };
         
-        constexpr size_t positionDataSize = NumVertices * sizeof( simd::float3 );
-        constexpr size_t colorDataSize = NumVertices * sizeof( simd::float3 );
+        constexpr uint16_t indices[] = {
+            0, 1, 2, /* front */
+            2, 3, 0,
+
+            1, 7, 6, /* right */
+            6, 2, 1,
+
+            7, 4, 5, /* back */
+            5, 6, 7,
+
+            4, 0, 3, /* left */
+            3, 5, 4,
+
+            3, 2, 6, /* top */
+            6, 5, 3,
+
+            4, 7, 1, /* bottom */
+            1, 0, 4
+        };
         
-        _pVertexPositionBuffer = _pDevice->newBuffer( positionDataSize, MTL::ResourceStorageModeManaged );
-        _pVertexColorBuffer = _pDevice->newBuffer( colorDataSize, MTL::ResourceStorageModeManaged );
+        constexpr size_t vertexDataSize = sizeof( vertices );
+        constexpr size_t indexDataSize = sizeof( indices );
         
-        memcpy( _pVertexPositionBuffer->contents(), positions, positionDataSize );
-        memcpy( _pVertexColorBuffer->contents(), colors, colorDataSize );
+        _pVertexDataBuffer = _pDevice->newBuffer( vertexDataSize, MTL::ResourceStorageModeManaged );
+        _pIndexBuffer = _pDevice->newBuffer( indexDataSize, MTL::ResourceStorageModeManaged );
         
-        _pVertexPositionBuffer->didModifyRange( NS::Range::Make( 0, _pVertexPositionBuffer->length() ) );
-        _pVertexColorBuffer->didModifyRange( NS::Range::Make( 0, _pVertexColorBuffer->length() ) );
+        memcpy( _pVertexDataBuffer->contents(), vertices, vertexDataSize );
+        memcpy( _pIndexBuffer->contents(), indices, indexDataSize );
         
-        assert(_pShaderLibrary);
+        _pVertexDataBuffer->didModifyRange( NS::Range::Make( 0, _pVertexDataBuffer->length() ) );
+        _pIndexBuffer->didModifyRange( NS::Range::Make( 0, _pIndexBuffer->length() ) );
         
-        MTL::Function* pVertexFn = _pShaderLibrary->newFunction( NS::String::string( "vertexMain", NS::UTF8StringEncoding ) );
-        MTL::ArgumentEncoder* pArgEncoder = pVertexFn->newArgumentEncoder( 0 );
+        constexpr size_t instanceDataSize = MAX_FRAMES_IN_FLIGHT * MAX_NUM_INSTANCES * sizeof( InstanceData );
+        for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i )
+        {
+            _pInstanceDataBuffers[ i ] = _pDevice->newBuffer( instanceDataSize, MTL::ResourceStorageModeManaged );
+        }
         
-        MTL::Buffer* pArgBuffer = _pDevice->newBuffer( pArgEncoder->encodedLength(), MTL::ResourceStorageModeManaged );
-        _pArgBuffer = pArgBuffer;
-        
-        pArgEncoder->setArgumentBuffer( _pArgBuffer, 0 );
-        pArgEncoder->setBuffer( _pVertexPositionBuffer, 0, 0 );
-        pArgEncoder->setBuffer( _pVertexColorBuffer, 0, 1 );
-        
-        _pArgBuffer->didModifyRange( NS::Range::Make( 0, _pArgBuffer->length() ) );
-        
-        pVertexFn->release();
-        pArgEncoder->release();
+        constexpr size_t cameraDataSize = MAX_FRAMES_IN_FLIGHT * sizeof( CameraData );
+        for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i )
+        {
+            _pCameraDataBuffers[ i ] = _pDevice->newBuffer( cameraDataSize, MTL::ResourceStorageModeManaged );
+        }
     }
     
-    void Renderer::buildFrameData()
+    void Renderer::buildDepthStencilStates()
     {
-        for ( int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i )
-        {
-            _pFrameData[ i ] = _pDevice->newBuffer( sizeof( FrameData ), MTL::ResourceStorageModeManaged );
-        }
+        MTL::DepthStencilDescriptor* pDepthStencilDescriptor = MTL::DepthStencilDescriptor::alloc()->init();
+        pDepthStencilDescriptor->setDepthCompareFunction( MTL::CompareFunction::CompareFunctionLess );
+        pDepthStencilDescriptor->setDepthWriteEnabled( true );
+        
+        _pDepthStencilState = _pDevice->newDepthStencilState( pDepthStencilDescriptor );
+        
+        pDepthStencilDescriptor->release();
     }
 }

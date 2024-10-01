@@ -9,10 +9,6 @@
 
 #include "MyAppDelegate.hpp"
 
-#include <string>
-#include <iostream>
-#include "Core/Core.h"
-
 int main( int argc, char* argv[] )
 {
     NS::AutoreleasePool* pAutoreleasePool = NS::AutoreleasePool::alloc()->init();
