@@ -7,7 +7,7 @@
 
 #include "Shader.hpp"
 
-#include "Core/Core.h"
+#include "Core/Core.hpp"
 
 namespace PCR
 {

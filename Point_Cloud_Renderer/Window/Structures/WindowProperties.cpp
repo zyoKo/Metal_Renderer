@@ -11,7 +11,8 @@
 
 namespace PCR
 {
-    WindowProperties::WindowProperties( const CGRect& frame, NS::String* winName /* = CreateUTF8String( "New Window" ) */  )
+    WindowProperties::WindowProperties( const CGRect& frame, const char* winName /* "New Window" */  )
+    :   windowName( CreateUTF8String( winName ) )
     {
         dimension.width = frame.size.width;
         dimension.height = frame.size.height;

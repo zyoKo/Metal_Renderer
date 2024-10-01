@@ -7,16 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C75BB25B2C8120FF001D3B10 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75BB25A2C8120FF001D3B10 /* main.cpp */; };
 		C75BB2632C812373001D3B10 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C75BB2622C812373001D3B10 /* Foundation.framework */; };
 		C75BB2652C812379001D3B10 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C75BB2642C812379001D3B10 /* QuartzCore.framework */; };
 		C75BB2672C812381001D3B10 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C75BB2662C812381001D3B10 /* Metal.framework */; };
 		C75BB2692C8135E2001D3B10 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C75BB2682C8135E2001D3B10 /* AppKit.framework */; };
 		C75BB26B2C8135E8001D3B10 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C75BB26A2C8135E8001D3B10 /* MetalKit.framework */; };
-		C75BB2722C813BD4001D3B10 /* MyAppDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75BB2702C813BD4001D3B10 /* MyAppDelegate.cpp */; };
-		C75BB2742C813C65001D3B10 /* BuildMetal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75BB2732C813C65001D3B10 /* BuildMetal.cpp */; };
-		C75BB2782C813CD3001D3B10 /* MyMTKViewDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75BB2762C813CD3001D3B10 /* MyMTKViewDelegate.cpp */; };
-		C75BB27B2C813D6C001D3B10 /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C75BB2792C813D6C001D3B10 /* Renderer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,21 +28,12 @@
 
 /* Begin PBXFileReference section */
 		C75BB2572C8120FF001D3B10 /* Point_Cloud_Renderer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Point_Cloud_Renderer; sourceTree = BUILT_PRODUCTS_DIR; };
-		C75BB25A2C8120FF001D3B10 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		C75BB2622C812373001D3B10 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		C75BB2642C812379001D3B10 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		C75BB2662C812381001D3B10 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		C75BB2682C8135E2001D3B10 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		C75BB26A2C8135E8001D3B10 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
-		C75BB2702C813BD4001D3B10 /* MyAppDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MyAppDelegate.cpp; sourceTree = "<group>"; };
-		C75BB2712C813BD4001D3B10 /* MyAppDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MyAppDelegate.hpp; sourceTree = "<group>"; };
-		C75BB2732C813C65001D3B10 /* BuildMetal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BuildMetal.cpp; sourceTree = "<group>"; };
-		C75BB2762C813CD3001D3B10 /* MyMTKViewDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MyMTKViewDelegate.cpp; sourceTree = "<group>"; };
-		C75BB2772C813CD3001D3B10 /* MyMTKViewDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MyMTKViewDelegate.hpp; sourceTree = "<group>"; };
-		C75BB2792C813D6C001D3B10 /* Renderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = "<group>"; };
-		C75BB27A2C813D6C001D3B10 /* Renderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = "<group>"; };
-		C75BB27D2C8141F0001D3B10 /* ProjectConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProjectConstants.h; sourceTree = "<group>"; };
-		C75BB27F2C814534001D3B10 /* Core.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Core.h; sourceTree = "<group>"; };
+		C75BB27F2C814534001D3B10 /* Core.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Core.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -64,9 +50,9 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C7023A772CAA1AEA009E20F2 /* Renderer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C7023AA82CAB64A8009E20F2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Renderer; sourceTree = "<group>"; };
-		C7023A822CAA1B2F009E20F2 /* AssetManager */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AssetManager; sourceTree = "<group>"; };
 		C7023A9B2CAA7642009E20F2 /* Window */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Window; sourceTree = "<group>"; };
 		C7023AA02CAA84CB009E20F2 /* Math */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Math; sourceTree = "<group>"; };
+		C7023AC12CAC0CC9009E20F2 /* Application */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Application; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,17 +93,8 @@
 			children = (
 				C7023AA02CAA84CB009E20F2 /* Math */,
 				C7023A9B2CAA7642009E20F2 /* Window */,
-				C7023A822CAA1B2F009E20F2 /* AssetManager */,
 				C7023A772CAA1AEA009E20F2 /* Renderer */,
 				C75BB27E2C814523001D3B10 /* Core */,
-				C75BB27C2C8141D4001D3B10 /* Constants */,
-				C75BB2752C813CB3001D3B10 /* Structures */,
-				C75BB25A2C8120FF001D3B10 /* main.cpp */,
-				C75BB2702C813BD4001D3B10 /* MyAppDelegate.cpp */,
-				C75BB2712C813BD4001D3B10 /* MyAppDelegate.hpp */,
-				C75BB2732C813C65001D3B10 /* BuildMetal.cpp */,
-				C75BB2792C813D6C001D3B10 /* Renderer.cpp */,
-				C75BB27A2C813D6C001D3B10 /* Renderer.hpp */,
 			);
 			path = Point_Cloud_Renderer;
 			sourceTree = "<group>";
@@ -134,27 +111,11 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		C75BB2752C813CB3001D3B10 /* Structures */ = {
-			isa = PBXGroup;
-			children = (
-				C75BB2762C813CD3001D3B10 /* MyMTKViewDelegate.cpp */,
-				C75BB2772C813CD3001D3B10 /* MyMTKViewDelegate.hpp */,
-			);
-			path = Structures;
-			sourceTree = "<group>";
-		};
-		C75BB27C2C8141D4001D3B10 /* Constants */ = {
-			isa = PBXGroup;
-			children = (
-				C75BB27D2C8141F0001D3B10 /* ProjectConstants.h */,
-			);
-			path = Constants;
-			sourceTree = "<group>";
-		};
 		C75BB27E2C814523001D3B10 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				C75BB27F2C814534001D3B10 /* Core.h */,
+				C7023AC12CAC0CC9009E20F2 /* Application */,
+				C75BB27F2C814534001D3B10 /* Core.hpp */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -176,9 +137,9 @@
 			);
 			fileSystemSynchronizedGroups = (
 				C7023A772CAA1AEA009E20F2 /* Renderer */,
-				C7023A822CAA1B2F009E20F2 /* AssetManager */,
 				C7023A9B2CAA7642009E20F2 /* Window */,
 				C7023AA02CAA84CB009E20F2 /* Math */,
+				C7023AC12CAC0CC9009E20F2 /* Application */,
 			);
 			name = Point_Cloud_Renderer;
 			productName = Point_Cloud_Renderer;
@@ -223,11 +184,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C75BB2722C813BD4001D3B10 /* MyAppDelegate.cpp in Sources */,
-				C75BB27B2C813D6C001D3B10 /* Renderer.cpp in Sources */,
-				C75BB2742C813C65001D3B10 /* BuildMetal.cpp in Sources */,
-				C75BB2782C813CD3001D3B10 /* MyMTKViewDelegate.cpp in Sources */,
-				C75BB25B2C8120FF001D3B10 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

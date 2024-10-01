@@ -5,9 +5,12 @@
 //  Created by Vatsalya Yadav on 8/29/24.
 //
 
-#pragma once
+#ifndef Renderer_hpp
+#define Renderer_hpp
 
-#include "Core/Core.h"
+#include <Metal/Metal.hpp>
+
+#include "Core/Core.hpp"
 #include "Renderer/Data/Constants.h"
 
 FD_MTL
@@ -41,6 +44,7 @@ namespace PCR
         MTL::Buffer* _pIndexBuffer;
         
         int _frame;
+        
         float _angle;
         
         dispatch_semaphore_t _semaphore;
@@ -52,3 +56,5 @@ namespace PCR
         void buildDepthStencilStates();
     };
 }
+
+#endif /* Renderer_hpp */

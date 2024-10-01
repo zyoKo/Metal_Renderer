@@ -7,9 +7,8 @@
 
 #include "MyAppDelegate.hpp"
 
-#include "Core.h"
+#include "Core.hpp"
 #include "Structures/MyMTKViewDelegate.hpp"
-#include "Constants/ProjectConstants.h"
 #include "Window/Window.hpp"
 
 namespace PCR

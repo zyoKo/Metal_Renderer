@@ -8,8 +8,10 @@
 #ifndef WindowProperties_hpp
 #define WindowProperties_hpp
 
+#include <Metal/Metal.hpp>
+
 #include "Math/Vector2.h"
-#include "Core/Core.h"
+#include "Core/Core.hpp"
 
 FD_NS
 
@@ -21,9 +23,9 @@ namespace PCR
         
         Vec2F origin;
         
-        NS::String* windowName = NS::String::string( "New Window", NS::UTF8StringEncoding );
+        NS::String* windowName;
         
-        explicit WindowProperties( const CGRect& frame, NS::String* winName = CreateUTF8String( "New Window" ) );
+        explicit WindowProperties( const CGRect& frame, const char* winName = "New Window" );
         
         CGRect operator()() const;
         
