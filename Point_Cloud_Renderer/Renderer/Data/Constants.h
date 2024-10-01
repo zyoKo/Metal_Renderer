@@ -11,6 +11,7 @@
 namespace PCR
 {
     constexpr int MAX_FRAMES_IN_FLIGHT{ 3 };
+    constexpr int MAX_NUM_INSTANCES{ 32 };
 }
 
 #endif /* Constants_h */

@@ -9,5 +9,6 @@
 #define Math_h
 
 #include "Vector2.h"
+#include "Utility.hpp"
 
 #endif /* Math_h */

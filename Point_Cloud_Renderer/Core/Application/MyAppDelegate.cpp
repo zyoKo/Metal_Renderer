@@ -7,9 +7,8 @@
 
 #include "MyAppDelegate.hpp"
 
-#include "Core.h"
+#include "Core.hpp"
 #include "Structures/MyMTKViewDelegate.hpp"
-#include "Constants/ProjectConstants.h"
 #include "Window/Window.hpp"
 
 namespace PCR
@@ -72,7 +71,7 @@ namespace PCR
 
     void MyAppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification )
     {
-        WindowProperties windowProperties( { 100.0, 100.0 }, { 640.0, 480.0 } );
+        WindowProperties windowProperties( CGRect{ { 512.0, 512.0 }, { 100.0, 100.0 } } );
 
         pWindow = std::make_shared<Window>( windowProperties, _pDevice );
 

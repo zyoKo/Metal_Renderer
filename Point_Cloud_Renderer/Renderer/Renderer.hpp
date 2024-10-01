@@ -5,11 +5,16 @@
 //  Created by Vatsalya Yadav on 8/29/24.
 //
 
-#pragma once
+#ifndef Renderer_hpp
+#define Renderer_hpp
 
-#include <MetalKit/MetalKit.hpp>
+#include <Metal/Metal.hpp>
 
+#include "Core/Core.hpp"
 #include "Renderer/Data/Constants.h"
+
+FD_MTL
+FD_MTK
 
 namespace PCR
 {
@@ -31,12 +36,15 @@ namespace PCR
         
         MTL::Library* _pShaderLibrary;
         
-        MTL::Buffer* _pArgBuffer;
-        MTL::Buffer* _pVertexPositionBuffer;
-        MTL::Buffer* _pVertexColorBuffer;
-        MTL::Buffer* _pFrameData[MAX_FRAMES_IN_FLIGHT];
+        MTL::DepthStencilState* _pDepthStencilState;
+        
+        MTL::Buffer* _pVertexDataBuffer;
+        MTL::Buffer* _pInstanceDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
+        MTL::Buffer* _pCameraDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
+        MTL::Buffer* _pIndexBuffer;
         
         int _frame;
+        
         float _angle;
         
         dispatch_semaphore_t _semaphore;
@@ -45,6 +53,8 @@ namespace PCR
         
         void buildBuffers();
         
-        void buildFrameData();
+        void buildDepthStencilStates();
     };
 }
+
+#endif /* Renderer_hpp */
