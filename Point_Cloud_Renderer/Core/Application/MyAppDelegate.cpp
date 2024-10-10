@@ -23,9 +23,9 @@ namespace PCR
 
     NS::Menu* MyAppDelegate::createMenuBar()
     {
-        NS::Menu* pMainMenu = NS::Menu::alloc()->init();
-        NS::MenuItem* pAppMenuItem = NS::MenuItem::alloc()->init();
-        NS::Menu* pAppMenu = NS::Menu::alloc()->init( CreateUTF8String("AppName") );
+        auto pMainMenu = NS::RetainPtr( NS::Menu::alloc()->init() );
+        auto pAppMenuItem = NS::TransferPtr( NS::MenuItem::alloc()->init() );
+        auto pAppMenu = NS::TransferPtr( NS::Menu::alloc()->init( CreateUTF8String("AppName") ) );
 
         NS::String* appName = NS::RunningApplication::currentApplication()->localizedName();
         NS::String* quitItemName = CreateUTF8String("Quit")->stringByAppendingString( appName );
@@ -36,10 +36,10 @@ namespace PCR
 
         NS::MenuItem* pAppQuitItem = pAppMenu->addItem( quitItemName, quitCb, CreateUTF8String("q") );
         pAppQuitItem->setKeyEquivalentModifierMask( NS::EventModifierFlagCommand );
-        pAppMenuItem->setSubmenu( pAppMenu );
+        pAppMenuItem->setSubmenu( pAppMenu->retain() );
 
-        NS::MenuItem* pWindowMenuItem = NS::MenuItem::alloc()->init();
-        NS::Menu* pWindowMenu = NS::Menu::alloc()->init( CreateUTF8String("Window") );
+        auto pWindowMenuItem = NS::TransferPtr( NS::MenuItem::alloc()->init() );
+        auto pWindowMenu = NS::TransferPtr( NS::Menu::alloc()->init( CreateUTF8String("Window") ) );
 
         SEL closeWindowCb = NS::MenuItem::registerActionCallback( "windowClose", [](void*, SEL, const NS::Object*){
             auto pApp = NS::Application::sharedApplication();
@@ -48,15 +48,10 @@ namespace PCR
         NS::MenuItem* pCloseWindowItem = pWindowMenu->addItem( CreateUTF8String("Close Window"), closeWindowCb, CreateUTF8String("w") );
         pCloseWindowItem->setKeyEquivalentModifierMask( NS::EventModifierFlagCommand );
 
-        pWindowMenuItem->setSubmenu( pWindowMenu );
+        pWindowMenuItem->setSubmenu( pWindowMenu->retain() );
 
-        pMainMenu->addItem( pAppMenuItem );
-        pMainMenu->addItem( pWindowMenuItem );
-
-        pAppMenuItem->release();
-        pWindowMenuItem->release();
-        pAppMenu->release();
-        pWindowMenu->release();
+        pMainMenu->addItem( pAppMenuItem->retain() );
+        pMainMenu->addItem( pWindowMenuItem->retain() );
 
         return pMainMenu->autorelease();
     }
