@@ -8,6 +8,9 @@
 #ifndef Constants_h
 #define Constants_h
 
-constexpr uint8_t SUBMESH_TEXTURE_COUNT{ 3 };
+namespace PCR
+{
+    constexpr uint8_t SUBMESH_TEXTURE_COUNT{ 3 };
+}
 
 #endif /* Constants_h */

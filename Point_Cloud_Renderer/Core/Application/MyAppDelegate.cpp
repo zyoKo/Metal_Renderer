@@ -23,7 +23,8 @@ namespace PCR
 
     NS::Menu* MyAppDelegate::createMenuBar()
     {
-        auto pMainMenu = NS::RetainPtr( NS::Menu::alloc()->init() );
+        NS::Menu* pMainMenu = NS::Menu::alloc()->init();
+        
         auto pAppMenuItem = NS::TransferPtr( NS::MenuItem::alloc()->init() );
         auto pAppMenu = NS::TransferPtr( NS::Menu::alloc()->init( CreateUTF8String("AppName") ) );
 
@@ -36,7 +37,7 @@ namespace PCR
 
         NS::MenuItem* pAppQuitItem = pAppMenu->addItem( quitItemName, quitCb, CreateUTF8String("q") );
         pAppQuitItem->setKeyEquivalentModifierMask( NS::EventModifierFlagCommand );
-        pAppMenuItem->setSubmenu( pAppMenu->retain() );
+        pAppMenuItem->setSubmenu( pAppMenu.get() );
 
         auto pWindowMenuItem = NS::TransferPtr( NS::MenuItem::alloc()->init() );
         auto pWindowMenu = NS::TransferPtr( NS::Menu::alloc()->init( CreateUTF8String("Window") ) );
@@ -48,10 +49,10 @@ namespace PCR
         NS::MenuItem* pCloseWindowItem = pWindowMenu->addItem( CreateUTF8String("Close Window"), closeWindowCb, CreateUTF8String("w") );
         pCloseWindowItem->setKeyEquivalentModifierMask( NS::EventModifierFlagCommand );
 
-        pWindowMenuItem->setSubmenu( pWindowMenu->retain() );
+        pWindowMenuItem->setSubmenu( pWindowMenu.get() );
 
-        pMainMenu->addItem( pAppMenuItem->retain() );
-        pMainMenu->addItem( pWindowMenuItem->retain() );
+        pMainMenu->addItem( pAppMenuItem.get() );
+        pMainMenu->addItem( pWindowMenuItem.get() );
 
         return pMainMenu->autorelease();
     }
@@ -66,7 +67,7 @@ namespace PCR
 
     void MyAppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification )
     {
-        WindowProperties windowProperties( CGRect{ { 512.0, 512.0 }, { 100.0, 100.0 } } );
+        WindowProperties windowProperties( CGRect{ { 1024.0, 1024.0 }, { 100.0, 100.0 } } );
 
         pWindow = std::make_shared<Window>( windowProperties, _pDevice );
 
@@ -74,7 +75,9 @@ namespace PCR
 
         _pMtkView = MTK::View::alloc()->init( windowProperties() , _pDevice );
         _pMtkView->setColorPixelFormat( MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB );
-        _pMtkView->setClearColor( MTL::ClearColor::Make( 1.0, 1.0, 1.0, 1.0 ) );
+        _pMtkView->setClearColor( MTL::ClearColor::Make( 0.1, 0.1, 0.1, 1.0 ) );
+        _pMtkView->setDepthStencilPixelFormat( MTL::PixelFormat::PixelFormatDepth16Unorm );
+        _pMtkView->setClearDepth( 1.0 );
 
         _pViewDelegate = new MyMTKViewDelegate( _pDevice );
         _pMtkView->setDelegate( _pViewDelegate );

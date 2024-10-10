@@ -13,6 +13,7 @@ namespace PCR
     struct InstanceData
     {
         simd::float4x4 transform;
+        simd::float3x3 normalTransform;
         simd::float4 color;
     };
 }
