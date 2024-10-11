@@ -31,6 +31,7 @@ namespace MTL {                     \
     class Buffer;                   \
     class DepthStencilState;        \
     class Texture;                  \
+    class ComputePipelineState;     \
 }
 
 #endif  /* Core_hpp */

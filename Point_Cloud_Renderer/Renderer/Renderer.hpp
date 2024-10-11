@@ -40,6 +40,8 @@ namespace PCR
         
         MTL::Texture* _pTexture;
         
+        MTL::ComputePipelineState* _pComputePipelineStateObject;
+        
         MTL::Buffer* _pVertexDataBuffer;
         MTL::Buffer* _pInstanceDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
         MTL::Buffer* _pCameraDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
@@ -58,6 +60,10 @@ namespace PCR
         void buildDepthStencilStates();
         
         void buildTextures();
+        
+        void buildComputePipeline();
+        
+        void generateMandelbrotTexture();
     };
 }
 
