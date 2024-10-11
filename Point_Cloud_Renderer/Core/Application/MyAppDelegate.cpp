@@ -79,7 +79,7 @@ namespace PCR
         _pMtkView->setDepthStencilPixelFormat( MTL::PixelFormat::PixelFormatDepth16Unorm );
         _pMtkView->setClearDepth( 1.0 );
         
-        _pMtkView->setPreferredFramesPerSecond( 1000 );
+        //_pMtkView->setPreferredFramesPerSecond( 1000 );
 	
         _pViewDelegate = new MyMTKViewDelegate( _pDevice );
         _pMtkView->setDelegate( _pViewDelegate );

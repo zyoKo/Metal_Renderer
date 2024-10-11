@@ -29,8 +29,10 @@ namespace PCR
         _pCommandQueue = _pDevice->newCommandQueue();
         buildShaders();
         buildDepthStencilStates();
+        buildComputePipeline();
         buildTextures();
         buildBuffers();
+        generateMandelbrotTexture();
         
         _semaphore = dispatch_semaphore_create( MAX_FRAMES_IN_FLIGHT );
     }
@@ -47,6 +49,7 @@ namespace PCR
             _pInstanceDataBuffers[ i ]->release();
             _pCameraDataBuffers[ i ]->release();
         }
+        _pComputePipelineStateObject->release();
         _pRenderPipelineStateObject->release();
         _pCommandQueue->release();
         _pDevice->release();
@@ -311,6 +314,47 @@ namespace PCR
         }
         
         _pTexture->replaceRegion( MTL::Region( 0, 0, 0, DEFAULT_TEXTURE_WIDTH, DEFAULT_TEXTURE_HEIGHT, 1 ), 0, pTextureData, DEFAULT_TEXTURE_WIDTH * 4 );
+    }
+    
+    void Renderer::buildComputePipeline()
+    {
+        auto pComputeLibrary = NS::TransferPtr( _pDevice->newDefaultLibrary() );
+        if ( !pComputeLibrary )
+        {
+            assert( false );
+        }
+        
+        auto pMandelbrotFn = NS::TransferPtr< MTL::Function >( pComputeLibrary->newFunction( CreateUTF8String( "mandelbrot_set" ) ) );
+        
+        NS::Error* pError = nullptr;
+        MTL::ComputePipelineState* pComputePipelineStateObject = _pDevice->newComputePipelineState( pMandelbrotFn.get(), &pError );
+        if ( !pComputePipelineStateObject )
+        {
+            __builtin_printf( "%s", pError->localizedDescription()->utf8String() );
+            assert( false );
+        }
+        _pComputePipelineStateObject = pComputePipelineStateObject;
+    }
+    
+    void Renderer::generateMandelbrotTexture()
+    {
+        MTL::CommandBuffer* pCommandBuffer = _pCommandQueue->commandBuffer();
+        assert( pCommandBuffer );
+        
+        MTL::ComputeCommandEncoder* pComputeEncoder = pCommandBuffer->computeCommandEncoder();
+        
+        pComputeEncoder->setComputePipelineState( _pComputePipelineStateObject );
+        pComputeEncoder->setTexture( _pTexture, 0 );
+        
+        MTL::Size gridSize = MTL::Size( DEFAULT_TEXTURE_WIDTH, DEFAULT_TEXTURE_HEIGHT, 1 );
+        
+        NS::UInteger threadGroupX = _pComputePipelineStateObject->maxTotalThreadsPerThreadgroup();
+        MTL::Size threadGroupSize = MTL::Size( threadGroupX, 1, 1 );
+        
+        pComputeEncoder->dispatchThreads( gridSize, threadGroupSize );
+        
+        pComputeEncoder->endEncoding();
+        pCommandBuffer->commit();
     }
     
 }
