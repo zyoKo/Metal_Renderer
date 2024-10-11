@@ -15,7 +15,10 @@ namespace PCR
     constexpr int INSTANCE_ROWS{ 10 };
     constexpr int INSTANCE_COLUMNS{ 10 };
     constexpr int INSTANCE_DEPTH{ 10 };
-    constexpr int MAX_NUM_INSTANCES{ INSTANCE_ROWS * INSTANCE_COLUMNS * INSTANCE_DEPTH };
+    constexpr size_t MAX_NUM_INSTANCES{ INSTANCE_ROWS * INSTANCE_COLUMNS * INSTANCE_DEPTH };
+    
+    constexpr uint32_t DEFAULT_TEXTURE_WIDTH{ 128 };
+    constexpr uint32_t DEFAULT_TEXTURE_HEIGHT{ 128 };
 }
 
 #endif /* Constants_h */

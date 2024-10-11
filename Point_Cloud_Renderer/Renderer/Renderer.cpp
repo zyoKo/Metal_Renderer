@@ -29,6 +29,7 @@ namespace PCR
         _pCommandQueue = _pDevice->newCommandQueue();
         buildShaders();
         buildDepthStencilStates();
+        buildTextures();
         buildBuffers();
         
         _semaphore = dispatch_semaphore_create( MAX_FRAMES_IN_FLIGHT );
@@ -36,6 +37,7 @@ namespace PCR
 
     Renderer::~Renderer()
     {
+        _pTexture->release();
         _pShaderLibrary->release();
         _pDepthStencilState->release();
         _pVertexDataBuffer->release();
@@ -145,9 +147,14 @@ namespace PCR
         
         pRenderCommandEncoder->setRenderPipelineState( _pRenderPipelineStateObject );
         pRenderCommandEncoder->setDepthStencilState( _pDepthStencilState );
+        
+        /* MTL::Buffer*, offset, index */
         pRenderCommandEncoder->setVertexBuffer( _pVertexDataBuffer, 0, 0 );
         pRenderCommandEncoder->setVertexBuffer( pCurrentInstanceDataBuffer, 0, 1 );
         pRenderCommandEncoder->setVertexBuffer( pCurrentCameraBuffer, 0, 2 );
+        
+        /* MTL::Texture*, index */
+        pRenderCommandEncoder->setFragmentTexture( _pTexture, 0 );
         
         pRenderCommandEncoder->setCullMode( MTL::CullMode::CullModeBack );
         pRenderCommandEncoder->setFrontFacingWinding( MTL::Winding::WindingCounterClockwise );
@@ -173,15 +180,17 @@ namespace PCR
 
             struct v2f
             {
-                float4 position [[position]];
+                float4 position [[ position ]];
                 float3 normal;
                 half3 color;
+                float2 texCoord;
             };
         
             struct VertexData
             {
                 float3 position;
                 float3 normal;
+                float2 texCoord;
             };
         
             struct InstanceData
@@ -198,11 +207,11 @@ namespace PCR
                 float3x3 worldNormalTransform;
             };
 
-            v2f vertex vertexMain( uint vertexId   [[vertex_id]],
-                                   uint instanceID [[instance_id]],
-                                   device const VertexData*   vertexData   [[buffer(0)]],
-                                   device const InstanceData* instanceData [[buffer(1)]],
-                                   device const CameraData*   cameraData   [[buffer(2)]] )
+            v2f vertex vertexMain( uint vertexId   [[ vertex_id ]],
+                                   uint instanceID [[ instance_id ]],
+                                   device const VertexData*   vertexData   [[ buffer( 0 ) ]],
+                                   device const InstanceData* instanceData [[ buffer( 1 ) ]],
+                                   device const CameraData*   cameraData   [[ buffer( 2 ) ]] )
             {
                 v2f o;
         
@@ -217,20 +226,29 @@ namespace PCR
                 normal = cameraData->worldNormalTransform * normal;
                 o.normal = normal;
         
+                o.texCoord = vd.texCoord;
+        
                 o.color = half3 ( instanceData[ instanceID ].color.rgb );
         
                 return o;
             }
 
-            half4 fragment fragmentMain( v2f in [[stage_in]] )
+            half4 fragment fragmentMain( v2f in [[stage_in]], texture2d< half, access::sample > tex [[ texture( 0 ) ]] )
             {
+                constexpr sampler s( address::repeat, filter::linear );
+                half3 texel = tex.sample( s, in.texCoord ).rgb;
+        
                 // assuming light coming from ( front-top-right )
                 float3 L = normalize( float3( 1.0, 1.0, 0.8 ) );
                 float3 N = normalize( in.normal );
         
-                float NdotL = saturate( dot( N, L ) );
+                half NdotL = half( saturate( dot( N, L ) ) );
         
-                return half4( in.color * 1.0 + in.color * NdotL, 1.0 );
+                half3 ambient = ( in.color * texel * 0.1 );
+                half3 diffuse = ( in.color * texel * NdotL );
+                half3 illum = ambient + diffuse;
+        
+                return half4( illum, 1.0 );
             }
         )" );
         
@@ -242,8 +260,8 @@ namespace PCR
             assert( false );
         }
         
-        auto pVertexMainFn = NS::TransferPtr( pLibrary->newFunction( CreateUTF8String("vertexMain") ) );
-        auto pFragmentMainFn = NS::TransferPtr( pLibrary->newFunction( CreateUTF8String("fragmentMain") ) );
+        auto pVertexMainFn = NS::TransferPtr( pLibrary->newFunction( CreateUTF8String( "vertexMain" ) ) );
+        auto pFragmentMainFn = NS::TransferPtr( pLibrary->newFunction( CreateUTF8String( "fragmentMain" ) ) );
         
         auto pRenderPipelineDesc = NS::TransferPtr( MTL::RenderPipelineDescriptor::alloc()->init() );
         pRenderPipelineDesc->setVertexFunction( pVertexMainFn.get() );
@@ -265,37 +283,39 @@ namespace PCR
     {
         constexpr float s = 0.5f;
         
-        VertexData verts[] = {
-            //   Positions          Normals
-            { { -s, -s, +s }, { 0.f,  0.f,  1.f } },
-            { { +s, -s, +s }, { 0.f,  0.f,  1.f } },
-            { { +s, +s, +s }, { 0.f,  0.f,  1.f } },
-            { { -s, +s, +s }, { 0.f,  0.f,  1.f } },
+        VertexData verts[] =
+        {
+            //                                         Texture
+            //   Positions           Normals         Coordinates
+            { { -s, -s, +s }, {  0.f,  0.f,  1.f }, { 0.f, 1.f } },
+            { { +s, -s, +s }, {  0.f,  0.f,  1.f }, { 1.f, 1.f } },
+            { { +s, +s, +s }, {  0.f,  0.f,  1.f }, { 1.f, 0.f } },
+            { { -s, +s, +s }, {  0.f,  0.f,  1.f }, { 0.f, 0.f } },
 
-            { { +s, -s, +s }, { 1.f,  0.f,  0.f } },
-            { { +s, -s, -s }, { 1.f,  0.f,  0.f } },
-            { { +s, +s, -s }, { 1.f,  0.f,  0.f } },
-            { { +s, +s, +s }, { 1.f,  0.f,  0.f } },
+            { { +s, -s, +s }, {  1.f,  0.f,  0.f }, { 0.f, 1.f } },
+            { { +s, -s, -s }, {  1.f,  0.f,  0.f }, { 1.f, 1.f } },
+            { { +s, +s, -s }, {  1.f,  0.f,  0.f }, { 1.f, 0.f } },
+            { { +s, +s, +s }, {  1.f,  0.f,  0.f }, { 0.f, 0.f } },
 
-            { { +s, -s, -s }, { 0.f,  0.f, -1.f } },
-            { { -s, -s, -s }, { 0.f,  0.f, -1.f } },
-            { { -s, +s, -s }, { 0.f,  0.f, -1.f } },
-            { { +s, +s, -s }, { 0.f,  0.f, -1.f } },
+            { { +s, -s, -s }, {  0.f,  0.f, -1.f }, { 0.f, 1.f } },
+            { { -s, -s, -s }, {  0.f,  0.f, -1.f }, { 1.f, 1.f } },
+            { { -s, +s, -s }, {  0.f,  0.f, -1.f }, { 1.f, 0.f } },
+            { { +s, +s, -s }, {  0.f,  0.f, -1.f }, { 0.f, 0.f } },
 
-            { { -s, -s, -s }, { -1.f, 0.f,  0.f } },
-            { { -s, -s, +s }, { -1.f, 0.f,  0.f } },
-            { { -s, +s, +s }, { -1.f, 0.f,  0.f } },
-            { { -s, +s, -s }, { -1.f, 0.f,  0.f } },
+            { { -s, -s, -s }, { -1.f,  0.f,  0.f }, { 0.f, 1.f } },
+            { { -s, -s, +s }, { -1.f,  0.f,  0.f }, { 1.f, 1.f } },
+            { { -s, +s, +s }, { -1.f,  0.f,  0.f }, { 1.f, 0.f } },
+            { { -s, +s, -s }, { -1.f,  0.f,  0.f }, { 0.f, 0.f } },
 
-            { { -s, +s, +s }, { 0.f,  1.f,  0.f } },
-            { { +s, +s, +s }, { 0.f,  1.f,  0.f } },
-            { { +s, +s, -s }, { 0.f,  1.f,  0.f } },
-            { { -s, +s, -s }, { 0.f,  1.f,  0.f } },
+            { { -s, +s, +s }, {  0.f,  1.f,  0.f }, { 0.f, 1.f } },
+            { { +s, +s, +s }, {  0.f,  1.f,  0.f }, { 1.f, 1.f } },
+            { { +s, +s, -s }, {  0.f,  1.f,  0.f }, { 1.f, 0.f } },
+            { { -s, +s, -s }, {  0.f,  1.f,  0.f }, { 0.f, 0.f } },
 
-            { { -s, -s, -s }, { 0.f, -1.f,  0.f } },
-            { { +s, -s, -s }, { 0.f, -1.f,  0.f } },
-            { { +s, -s, +s }, { 0.f, -1.f,  0.f } },
-            { { -s, -s, +s }, { 0.f, -1.f,  0.f } },
+            { { -s, -s, -s }, {  0.f, -1.f,  0.f }, { 0.f, 1.f } },
+            { { +s, -s, -s }, {  0.f, -1.f,  0.f }, { 1.f, 1.f } },
+            { { +s, -s, +s }, {  0.f, -1.f,  0.f }, { 1.f, 0.f } },
+            { { -s, -s, +s }, {  0.f, -1.f,  0.f }, { 0.f, 0.f } }
         };
         
         uint16_t indices[] = {
@@ -339,4 +359,37 @@ namespace PCR
         pDepthStencilDescriptor->setDepthWriteEnabled( true );
         _pDepthStencilState = _pDevice->newDepthStencilState( pDepthStencilDescriptor.get() );
     }
+    
+    void Renderer::buildTextures()
+    {
+        auto pTextureDesc = NS::TransferPtr< MTL::TextureDescriptor >( MTL::TextureDescriptor::alloc()->init() );
+        pTextureDesc->setWidth( DEFAULT_TEXTURE_WIDTH );
+        pTextureDesc->setHeight( DEFAULT_TEXTURE_HEIGHT );
+        pTextureDesc->setPixelFormat( MTL::PixelFormat::PixelFormatRGBA8Unorm );
+        pTextureDesc->setTextureType( MTL::TextureType2D );
+        pTextureDesc->setStorageMode( MTL::StorageModeManaged );
+        pTextureDesc->setUsage( MTL::ResourceUsageSample | MTL::ResourceUsageRead | MTL::ResourceUsageWrite );
+        
+        _pTexture = _pDevice->newTexture( pTextureDesc.get() );
+        
+        uint8_t* pTextureData = ( uint8_t* )alloca( DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT * 4 );
+        for ( size_t y = 0; y < DEFAULT_TEXTURE_HEIGHT; ++y )
+        {
+            for ( size_t x = 0; x < DEFAULT_TEXTURE_WIDTH; ++x )
+            {
+                bool isWhite = ( x ^ y ) & 0b1000000;
+                uint8_t c = isWhite ? 0xFF : 0xA;
+                
+                size_t i = y * DEFAULT_TEXTURE_WIDTH + x;
+                
+                pTextureData[ i * 4 + 0 ] = c;
+                pTextureData[ i * 4 + 1 ] = c;
+                pTextureData[ i * 4 + 2 ] = c;
+                pTextureData[ i * 4 + 3 ] = 0xFF;
+            }
+        }
+        
+        _pTexture->replaceRegion( MTL::Region( 0, 0, 0, DEFAULT_TEXTURE_WIDTH, DEFAULT_TEXTURE_HEIGHT, 1 ), 0, pTextureData, DEFAULT_TEXTURE_WIDTH * 4 );
+    }
+    
 }
