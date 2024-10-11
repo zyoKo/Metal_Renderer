@@ -38,6 +38,8 @@ namespace PCR
         
         MTL::DepthStencilState* _pDepthStencilState;
         
+        MTL::Texture* _pTexture;
+        
         MTL::Buffer* _pVertexDataBuffer;
         MTL::Buffer* _pInstanceDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
         MTL::Buffer* _pCameraDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
@@ -54,6 +56,8 @@ namespace PCR
         void buildBuffers();
         
         void buildDepthStencilStates();
+        
+        void buildTextures();
     };
 }
 

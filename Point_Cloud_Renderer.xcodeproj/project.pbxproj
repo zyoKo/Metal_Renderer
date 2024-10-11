@@ -53,6 +53,7 @@
 		C7023A9B2CAA7642009E20F2 /* Window */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Window; sourceTree = "<group>"; };
 		C7023AA02CAA84CB009E20F2 /* Math */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Math; sourceTree = "<group>"; };
 		C7023AC12CAC0CC9009E20F2 /* Application */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Application; sourceTree = "<group>"; };
+		C72F114E2CB8A8D3003E956F /* External */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = External; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +92,7 @@
 		C75BB2592C8120FF001D3B10 /* Point_Cloud_Renderer */ = {
 			isa = PBXGroup;
 			children = (
+				C72F114E2CB8A8D3003E956F /* External */,
 				C7023AA02CAA84CB009E20F2 /* Math */,
 				C7023A9B2CAA7642009E20F2 /* Window */,
 				C7023A772CAA1AEA009E20F2 /* Renderer */,
@@ -140,6 +142,7 @@
 				C7023A9B2CAA7642009E20F2 /* Window */,
 				C7023AA02CAA84CB009E20F2 /* Math */,
 				C7023AC12CAC0CC9009E20F2 /* Application */,
+				C72F114E2CB8A8D3003E956F /* External */,
 			);
 			name = Point_Cloud_Renderer;
 			productName = Point_Cloud_Renderer;
