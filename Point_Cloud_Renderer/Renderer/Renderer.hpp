@@ -46,10 +46,13 @@ namespace PCR
         MTL::Buffer* _pInstanceDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
         MTL::Buffer* _pCameraDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
         MTL::Buffer* _pIndexBuffer;
+        MTL::Buffer* _pTextureAnimationBuffer;
         
         int _frame;
         
         float _angle;
+        
+        uint _animationIndex;
         
         dispatch_semaphore_t _semaphore;
         
@@ -63,7 +66,7 @@ namespace PCR
         
         void buildComputePipeline();
         
-        void generateMandelbrotTexture();
+        void generateMandelbrotTexture( MTL::CommandBuffer* pCommandBuffer );
     };
 }
 

@@ -25,6 +25,7 @@ namespace PCR
     :   _pDevice( pDevice->retain() )
     ,   _frame( 0 )
     ,   _angle( 0.0f )
+    ,   _animationIndex( 0 )
     {
         _pCommandQueue = _pDevice->newCommandQueue();
         buildShaders();
@@ -32,7 +33,6 @@ namespace PCR
         buildComputePipeline();
         buildTextures();
         buildBuffers();
-        generateMandelbrotTexture();
         
         _semaphore = dispatch_semaphore_create( MAX_FRAMES_IN_FLIGHT );
     }
@@ -44,6 +44,7 @@ namespace PCR
         _pDepthStencilState->release();
         _pVertexDataBuffer->release();
         _pIndexBuffer->release();
+        _pTextureAnimationBuffer->release();
         for ( int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i )
         {
             _pInstanceDataBuffers[ i ]->release();
@@ -142,6 +143,10 @@ namespace PCR
         pCameraData->worldTransform = Math::makeIdentity();
         pCameraData->worldNormalTransform = Math::discardTranslation( pCameraData->worldTransform );
         pCurrentCameraBuffer->didModifyRange( NS::Range::Make( 0, pCurrentCameraBuffer->length() ) );
+        
+        // Update Texture
+        
+        generateMandelbrotTexture( pCommandBuffer );
         
         // Begin Render Pass
         
@@ -274,6 +279,8 @@ namespace PCR
         {
             _pCameraDataBuffers[ i ] = _pDevice->newBuffer( cameraDataSize, MTL::ResourceStorageModeManaged );
         }
+        
+        _pTextureAnimationBuffer = _pDevice->newBuffer( sizeof( uint ), MTL::ResourceStorageModeManaged );
     }
     
     void Renderer::buildDepthStencilStates()
@@ -295,25 +302,6 @@ namespace PCR
         pTextureDesc->setUsage( MTL::ResourceUsageSample | MTL::ResourceUsageRead | MTL::ResourceUsageWrite );
         
         _pTexture = _pDevice->newTexture( pTextureDesc.get() );
-        
-        uint8_t* pTextureData = ( uint8_t* )alloca( DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT * 4 );
-        for ( size_t y = 0; y < DEFAULT_TEXTURE_HEIGHT; ++y )
-        {
-            for ( size_t x = 0; x < DEFAULT_TEXTURE_WIDTH; ++x )
-            {
-                bool isWhite = ( x ^ y ) & 0b1000000;
-                uint8_t c = isWhite ? 0xFF : 0xA;
-                
-                size_t i = y * DEFAULT_TEXTURE_WIDTH + x;
-                
-                pTextureData[ i * 4 + 0 ] = c;
-                pTextureData[ i * 4 + 1 ] = c;
-                pTextureData[ i * 4 + 2 ] = c;
-                pTextureData[ i * 4 + 3 ] = 0xFF;
-            }
-        }
-        
-        _pTexture->replaceRegion( MTL::Region( 0, 0, 0, DEFAULT_TEXTURE_WIDTH, DEFAULT_TEXTURE_HEIGHT, 1 ), 0, pTextureData, DEFAULT_TEXTURE_WIDTH * 4 );
     }
     
     void Renderer::buildComputePipeline()
@@ -336,15 +324,23 @@ namespace PCR
         _pComputePipelineStateObject = pComputePipelineStateObject;
     }
     
-    void Renderer::generateMandelbrotTexture()
+    void Renderer::generateMandelbrotTexture( MTL::CommandBuffer* pCommandBuffer )
     {
-        MTL::CommandBuffer* pCommandBuffer = _pCommandQueue->commandBuffer();
         assert( pCommandBuffer );
+        
+        uint* ptr = reinterpret_cast< uint* >( _pTextureAnimationBuffer->contents() );
+        *ptr = ( _animationIndex++ );
+        if ( _animationIndex >= 5000 )
+        {
+            _animationIndex = 0;
+        }
+        _pTextureAnimationBuffer->didModifyRange( NS::Range( 0, sizeof( uint ) ) );
         
         MTL::ComputeCommandEncoder* pComputeEncoder = pCommandBuffer->computeCommandEncoder();
         
         pComputeEncoder->setComputePipelineState( _pComputePipelineStateObject );
         pComputeEncoder->setTexture( _pTexture, 0 );
+        pComputeEncoder->setBuffer( _pTextureAnimationBuffer, /* offset */ 0 , /* index */ 0);
         
         MTL::Size gridSize = MTL::Size( DEFAULT_TEXTURE_WIDTH, DEFAULT_TEXTURE_HEIGHT, 1 );
         
@@ -354,7 +350,5 @@ namespace PCR
         pComputeEncoder->dispatchThreads( gridSize, threadGroupSize );
         
         pComputeEncoder->endEncoding();
-        pCommandBuffer->commit();
     }
-    
 }
