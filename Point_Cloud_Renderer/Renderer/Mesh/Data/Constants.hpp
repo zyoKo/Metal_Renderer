@@ -5,12 +5,12 @@
 //  Created by Vatsalya Yadav on 9/29/24.
 //
 
-#ifndef Constants_h
-#define Constants_h
+#ifndef Constants_hpp
+#define Constants_hpp
 
 namespace PCR
 {
     constexpr uint8_t SUBMESH_TEXTURE_COUNT{ 3 };
 }
 
-#endif /* Constants_h */
+#endif /* Constants_hpp */

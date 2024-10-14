@@ -5,8 +5,8 @@
 //  Created by Vatsalya Yadav on 9/30/24.
 //
 
-#ifndef Constants_h
-#define Constants_h
+#ifndef Constants_hpp
+#define Constants_hpp
 
 namespace PCR
 {
@@ -21,4 +21,4 @@ namespace PCR
     constexpr uint32_t DEFAULT_TEXTURE_HEIGHT{ 128 };
 }
 
-#endif /* Constants_h */
+#endif /* Constants_hpp */

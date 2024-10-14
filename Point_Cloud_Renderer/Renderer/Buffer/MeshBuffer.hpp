@@ -8,8 +8,11 @@
 #ifndef MeshBuffer_hpp
 #define MeshBuffer_hpp
 
-#include <MetalKit/MetalKit.hpp>
-#include <Foundation/Foundation.h>
+#include <Foundation/Foundation.hpp>
+
+#include "Core/Core.hpp"
+
+FD_MTL
 
 namespace PCR
 {
@@ -19,18 +22,18 @@ namespace PCR
 
         MeshBuffer();
         
-        MeshBuffer(MTL::Buffer* pBuffer,
-                   NS::UInteger offset,
-                   NS::UInteger length,
-                   NS::UInteger argumentIndex = NS::UIntegerMax);
+        MeshBuffer( MTL::Buffer* pBuffer,
+                    NS::UInteger offset,
+                    NS::UInteger length,
+                    NS::UInteger argumentIndex = NS::UIntegerMax );
 
-        MeshBuffer(const MeshBuffer& rhs);
+        MeshBuffer( const MeshBuffer& rhs );
         
-        MeshBuffer& operator=(MeshBuffer& rhs);
+        MeshBuffer& operator=( const MeshBuffer& rhs );
 
-        MeshBuffer(MeshBuffer&& rhs);
+        MeshBuffer( MeshBuffer&& rhs );
         
-        MeshBuffer& operator=(MeshBuffer&& rhs);
+        MeshBuffer& operator=( MeshBuffer&& rhs );
 
         ~MeshBuffer();
 
@@ -42,11 +45,11 @@ namespace PCR
         
         NS::UInteger getOffset() const;
 
-        static std::vector<MeshBuffer>
-        makeVertexBuffers(MTL::Device* pDevice,
-                          const MTL::VertexDescriptor* pDescriptor,
-                          NS::UInteger vertexCount,
-                          NS::UInteger indexBufferSize);
+        static std::vector< MeshBuffer >
+        makeVertexBuffers( MTL::Device* pDevice,
+                           const MTL::VertexDescriptor* pDescriptor,
+                           NS::UInteger vertexCount,
+                           NS::UInteger indexBufferSize );
 
     private:
         MTL::Buffer* m_pBuffer;

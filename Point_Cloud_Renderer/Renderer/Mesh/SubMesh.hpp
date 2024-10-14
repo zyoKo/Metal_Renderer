@@ -13,7 +13,7 @@
 #include <MetalKit/MetalKit.hpp>
 
 #include "Renderer/Buffer/MeshBuffer.hpp"
-#include "Renderer/Mesh/Data/Constants.h"
+#include "Renderer/Mesh/Data/Constants.hpp"
 
 namespace PCR
 {
@@ -24,24 +24,24 @@ namespace PCR
     public:
         SubMesh();
         
-        SubMesh(MTL::PrimitiveType primitiveType,
-                MTL::IndexType indexType,
-                NS::UInteger indexCount,
-                const MeshBuffer& indexBuffer,
-                const SubmeshTextureArray& pTextures);
+        SubMesh( MTL::PrimitiveType primitiveType,
+                 MTL::IndexType indexType,
+                 NS::UInteger indexCount,
+                 const MeshBuffer& indexBuffer,
+                 const SubmeshTextureArray& pTextures );
         
-        SubMesh(MTL::PrimitiveType primitiveType,
-                MTL::IndexType indexType,
-                NS::UInteger indexCount,
-                const MeshBuffer& indexBuffer);
+        SubMesh( MTL::PrimitiveType primitiveType,
+                 MTL::IndexType indexType,
+                 NS::UInteger indexCount,
+                 const MeshBuffer& indexBuffer );
         
-        SubMesh(const SubMesh& rhs);
+        SubMesh( const SubMesh& rhs );
         
-        SubMesh(SubMesh&& rhs);
+        SubMesh( SubMesh&& rhs );
         
-        SubMesh& operator=(const SubMesh& rhs);
+        SubMesh& operator=( const SubMesh& rhs );
         
-        SubMesh& operator=(SubMesh&& rhs);
+        SubMesh& operator=( SubMesh&& rhs );
         
         ~SubMesh();
         

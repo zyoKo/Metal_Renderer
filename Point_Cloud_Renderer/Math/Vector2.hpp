@@ -5,8 +5,8 @@
 //  Created by Vatsalya Yadav on 9/30/24.
 //
 
-#ifndef Vector2_h
-#define Vector2_h
+#ifndef Vector2_hpp
+#define Vector2_hpp
 
 template <typename T>
 struct Vector2
@@ -32,4 +32,4 @@ struct Vector2
 using Vec2F = Vector2<float>;
 using Vector2F = Vector2<float>;
 
-#endif /* Vector2_h */
+#endif /* Vector2_hpp */
