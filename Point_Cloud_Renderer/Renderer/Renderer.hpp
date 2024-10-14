@@ -11,7 +11,7 @@
 #include <Metal/Metal.hpp>
 
 #include "Core/Core.hpp"
-#include "Renderer/Data/Constants.h"
+#include "Renderer/Data/Constants.hpp"
 
 FD_MTL
 FD_MTK
@@ -43,9 +43,13 @@ namespace PCR
         MTL::ComputePipelineState* _pComputePipelineStateObject;
         
         MTL::Buffer* _pVertexDataBuffer;
+        
         MTL::Buffer* _pInstanceDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
+        
         MTL::Buffer* _pCameraDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
+        
         MTL::Buffer* _pIndexBuffer;
+        
         MTL::Buffer* _pTextureAnimationBuffer;
         
         int _frame;

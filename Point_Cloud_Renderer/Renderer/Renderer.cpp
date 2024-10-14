@@ -13,19 +13,19 @@
 #include <MetalKit/MetalKit.hpp>
 #include <simd/simd.h>
 
-#include "Renderer/Structures/FrameData.h"
-#include "Renderer/Structures/InstanceData.h"
-#include "Renderer/Structures/CameraData.h"
+#include "Renderer/Structures/FrameData.hpp"
+#include "Renderer/Structures/InstanceData.hpp"
+#include "Renderer/Structures/CameraData.hpp"
 #include "Math/Utility.hpp"
 #include "Renderer/Mesh/Types/VertexData.h"
 
 namespace PCR
 {
     Renderer::Renderer( MTL::Device* pDevice )
-    :   _pDevice( pDevice->retain() )
-    ,   _frame( 0 )
-    ,   _angle( 0.0f )
-    ,   _animationIndex( 0 )
+    :   _pDevice{ pDevice->retain() }
+    ,   _frame{ 0 }
+    ,   _angle{ 0.0f }
+    ,   _animationIndex{ 0 }
     {
         _pCommandQueue = _pDevice->newCommandQueue();
         buildShaders();

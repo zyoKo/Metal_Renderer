@@ -10,7 +10,7 @@
 
 #include <Metal/Metal.hpp>
 
-#include "Math/Vector2.h"
+#include "Math/Vector2.hpp"
 #include "Core/Core.hpp"
 
 FD_NS

@@ -5,17 +5,19 @@
 //  Created by Vatsalya Yadav on 10/1/24.
 //
 
-#ifndef CameraData_h
-#define CameraData_h
+#ifndef CameraData_hpp
+#define CameraData_hpp
 
 namespace PCR
 {
     struct CameraData
     {
         simd::float4x4 perspectiveTransform;
+        
         simd::float4x4 worldTransform;
+        
         simd::float3x3 worldNormalTransform;
     };
 }
 
-#endif /* CameraData_h */
+#endif /* CameraData_hpp */

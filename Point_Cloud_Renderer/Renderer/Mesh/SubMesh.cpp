@@ -12,61 +12,45 @@
 namespace PCR
 {
     SubMesh::SubMesh()
-    :   primitiveType( MTL::PrimitiveTypeTriangle )
-    ,   indexType( MTL::IndexTypeUInt16 )
-    ,   indexCount( 0 )
-    ,   indexBuffer( nullptr, (NS::UInteger)0, (NS::UInteger)0)
+    :   primitiveType{ MTL::PrimitiveTypeTriangle }
+    ,   indexType{ MTL::IndexTypeUInt16 }
+    ,   indexCount{ 0 }
+    ,   indexBuffer{ nullptr, static_cast< NS::Integer >( 0 ), static_cast< NS::Integer >( 0 ) }
     { }
     
-    SubMesh::SubMesh(MTL::PrimitiveType primitiveType,
-            MTL::IndexType indexType,
-            NS::UInteger indexCount,
-            const MeshBuffer& indexBuffer,
-            const SubmeshTextureArray& pTextures)
-    :   primitiveType(primitiveType)
-    ,   indexType(indexType)
-    ,   indexCount(indexCount)
-    ,   indexBuffer(indexBuffer)
-    ,   pTextures(pTextures)
+    SubMesh::SubMesh( MTL::PrimitiveType primitiveType,
+                      MTL::IndexType indexType,
+                      NS::UInteger indexCount,
+                      const MeshBuffer& indexBuffer,
+                      const SubmeshTextureArray& pTextures )
+    :   primitiveType{ primitiveType }
+    ,   indexType{ indexType }
+    ,   indexCount{ indexCount }
+    ,   indexBuffer{ indexBuffer }
+    ,   pTextures{ pTextures }
     {
-        for (auto&& pTex : this->pTextures)
+        for ( auto&& pTex : this->pTextures )
         {
             pTex->retain();
         }
     }
     
-    SubMesh::SubMesh(MTL::PrimitiveType primitiveType,
-            MTL::IndexType indexType,
-            NS::UInteger indexCount,
-            const MeshBuffer& indexBuffer)
-    :   primitiveType(primitiveType)
-    ,   indexType(indexType)
-    ,   indexCount(indexCount)
-    ,   indexBuffer(indexBuffer)
+    SubMesh::SubMesh( MTL::PrimitiveType primitiveType,
+                      MTL::IndexType indexType,
+                      NS::UInteger indexCount,
+                      const MeshBuffer& indexBuffer )
+    :   primitiveType{ primitiveType }
+    ,   indexType{ indexType }
+    ,   indexCount{ indexCount }
+    ,   indexBuffer{ indexBuffer }
     {
         for ( size_t i = 0; i < 3; ++i )
         {
-            this->pTextures[i] = nullptr;
+            pTextures[ i ] = nullptr;
         }
     }
     
-    SubMesh::SubMesh(const SubMesh& rhs)
-    {
-        primitiveType = rhs.primitiveType;
-        indexType = rhs.indexType;
-        indexCount = rhs.indexCount;
-        assert(false);
-        // TODO: Fix this
-        // indexBuffer = rhs.indexBuffer;
-        pTextures = rhs.pTextures;
-        
-        for ( size_t i = 0; i < 3; ++i )
-        {
-            pTextures[i]->retain();
-        }
-    }
-    
-    SubMesh::SubMesh(SubMesh&& rhs)
+    SubMesh::SubMesh( const SubMesh& rhs )
     {
         primitiveType = rhs.primitiveType;
         indexType = rhs.indexType;
@@ -76,31 +60,43 @@ namespace PCR
         
         for ( size_t i = 0; i < 3; ++i )
         {
-            pTextures[i]->retain();
-            rhs.pTextures[i]->release();
-            rhs.pTextures[i] = nullptr;
+            pTextures[ i ]->retain();
         }
     }
     
-    SubMesh& SubMesh::operator=(const SubMesh& rhs)
+    SubMesh::SubMesh( SubMesh&& rhs )
     {
         primitiveType = rhs.primitiveType;
         indexType = rhs.indexType;
         indexCount = rhs.indexCount;
-        assert(false);
-        // TODO: Fix this
-        // indexBuffer = rhs.indexBuffer;
+        indexBuffer = rhs.indexBuffer;
         pTextures = rhs.pTextures;
         
         for ( size_t i = 0; i < 3; ++i )
         {
-            pTextures[i]->retain();
+            pTextures[ i ]->retain();
+            rhs.pTextures[ i ]->release();
+            rhs.pTextures[ i ] = nullptr;
+        }
+    }
+    
+    SubMesh& SubMesh::operator=( const SubMesh& rhs )
+    {
+        primitiveType = rhs.primitiveType;
+        indexType = rhs.indexType;
+        indexCount = rhs.indexCount;
+        indexBuffer = rhs.indexBuffer;
+        pTextures = rhs.pTextures;
+        
+        for ( size_t i = 0; i < 3; ++i )
+        {
+            pTextures[ i ]->retain();
         }
         
         return *this;
     }
     
-    SubMesh& SubMesh::operator=(SubMesh&& rhs)
+    SubMesh& SubMesh::operator=( SubMesh&& rhs )
     {
         primitiveType = rhs.primitiveType;
         indexType = rhs.indexType;
@@ -110,9 +106,9 @@ namespace PCR
         
         for ( size_t i = 0; i < 3; ++i )
         {
-            pTextures[i]->retain();
-            rhs.pTextures[i]->release();
-            rhs.pTextures[i] = nullptr;
+            pTextures[ i ]->retain();
+            rhs.pTextures[ i ]->release();
+            rhs.pTextures[ i ] = nullptr;
         }
         
         return *this;

@@ -5,8 +5,8 @@
 //  Created by Vatsalya Yadav on 9/29/24.
 //
 
-#ifndef MeshVertex_h
-#define MeshVertex_h
+#ifndef MeshVertex_hpp
+#define MeshVertex_hpp
 
 #include <simd/simd.h>
 
@@ -26,4 +26,4 @@ namespace PCR
     };
 }
 
-#endif /* MeshVertex_h */
+#endif /* MeshVertex_hpp */

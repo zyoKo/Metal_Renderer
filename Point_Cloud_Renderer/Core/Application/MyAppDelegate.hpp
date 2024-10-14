@@ -35,7 +35,7 @@ namespace PCR
         virtual bool applicationShouldTerminateAfterLastWindowClosed( NS::Application* pSender ) override;
 
     private:
-        std::shared_ptr<Window> pWindow;
+        std::shared_ptr< Window > pWindow;
         
         MTK::View* _pMtkView;
         

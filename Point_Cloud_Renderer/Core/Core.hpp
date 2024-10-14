@@ -32,6 +32,7 @@ namespace MTL {                     \
     class DepthStencilState;        \
     class Texture;                  \
     class ComputePipelineState;     \
+    class VertexDescriptor;         \
 }
 
 #endif  /* Core_hpp */

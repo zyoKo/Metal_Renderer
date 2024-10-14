@@ -9,34 +9,34 @@
 
 namespace PCR
 {
-    Mesh::Mesh(const std::vector<SubMesh>& subMeshes,
-               const std::vector<MeshBuffer>& meshBuffers)
-    :   subMeshes(subMeshes)
-    ,   meshBuffers(meshBuffers)
+    Mesh::Mesh( const std::vector<SubMesh>& subMeshes,
+                const std::vector<MeshBuffer>& meshBuffers )
+    :   subMeshes{ subMeshes }
+    ,   meshBuffers{ meshBuffers }
     { }
     
-    Mesh::Mesh(const SubMesh& subMesh,
-               const std::vector<MeshBuffer>& meshBuffers)
-    :   meshBuffers(meshBuffers)
+    Mesh::Mesh( const SubMesh& subMesh,
+                const std::vector<MeshBuffer>& meshBuffers )
+    :   meshBuffers{ meshBuffers }
     {
-        this->subMeshes.emplace_back(subMesh);
+        this->subMeshes.emplace_back( subMesh );
     }
     
     Mesh::Mesh( const Mesh& rhs )
-    :   subMeshes(rhs.subMeshes)
-    ,   meshBuffers(rhs.meshBuffers)
+    :   subMeshes{ rhs.subMeshes }
+    ,   meshBuffers{ rhs.meshBuffers }
     { }
     
     Mesh::Mesh( Mesh&& rhs ) noexcept
-    :   subMeshes(rhs.subMeshes)
-    ,   meshBuffers(rhs.meshBuffers)
+    :   subMeshes{ rhs.subMeshes }
+    ,   meshBuffers{ rhs.meshBuffers }
     { }
     
     Mesh& Mesh::operator=( const Mesh& rhs )
     {
         subMeshes = rhs.subMeshes;
         meshBuffers = rhs.meshBuffers;
-        
+
         return *this;
     }
     
