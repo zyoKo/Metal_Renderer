@@ -36,20 +36,8 @@
 		C75BB27F2C814534001D3B10 /* Core.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Core.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		C7023AA82CAB64A8009E20F2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Buffer/MeshBuffer.cpp,
-				Mesh/Mesh.cpp,
-				Mesh/SubMesh.cpp,
-			);
-			target = C75BB2562C8120FF001D3B10 /* Point_Cloud_Renderer */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		C7023A772CAA1AEA009E20F2 /* Renderer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C7023AA82CAB64A8009E20F2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Renderer; sourceTree = "<group>"; };
+		C7023A772CAA1AEA009E20F2 /* Renderer */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Renderer; sourceTree = "<group>"; };
 		C7023A9B2CAA7642009E20F2 /* Window */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Window; sourceTree = "<group>"; };
 		C7023AA02CAA84CB009E20F2 /* Math */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Math; sourceTree = "<group>"; };
 		C7023AC12CAC0CC9009E20F2 /* Application */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Application; sourceTree = "<group>"; };
