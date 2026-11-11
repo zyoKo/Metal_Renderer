@@ -7,6 +7,8 @@
 
 #include "SubMesh.hpp"
 
+#include <utility>
+
 #include "Renderer/Buffer/MeshBuffer.hpp"
 
 namespace PCR
@@ -15,7 +17,8 @@ namespace PCR
     :   primitiveType{ MTL::PrimitiveTypeTriangle }
     ,   indexType{ MTL::IndexTypeUInt16 }
     ,   indexCount{ 0 }
-    ,   indexBuffer{ nullptr, static_cast< NS::Integer >( 0 ), static_cast< NS::Integer >( 0 ) }
+    ,   indexBuffer{}
+    ,   pTextures{}
     { }
     
     SubMesh::SubMesh( MTL::PrimitiveType primitiveType,
@@ -29,10 +32,7 @@ namespace PCR
     ,   indexBuffer{ indexBuffer }
     ,   pTextures{ pTextures }
     {
-        for ( auto&& pTex : this->pTextures )
-        {
-            pTex->retain();
-        }
+        retainTextures();
     }
     
     SubMesh::SubMesh( MTL::PrimitiveType primitiveType,
@@ -43,72 +43,66 @@ namespace PCR
     ,   indexType{ indexType }
     ,   indexCount{ indexCount }
     ,   indexBuffer{ indexBuffer }
-    {
-        for ( size_t i = 0; i < 3; ++i )
-        {
-            pTextures[ i ] = nullptr;
-        }
-    }
+    ,   pTextures{}
+    { }
     
     SubMesh::SubMesh( const SubMesh& rhs )
+    :   primitiveType{ rhs.primitiveType }
+    ,   indexType{ rhs.indexType }
+    ,   indexCount{ rhs.indexCount }
+    ,   indexBuffer{ rhs.indexBuffer }
+    ,   pTextures{ rhs.pTextures }
     {
-        primitiveType = rhs.primitiveType;
-        indexType = rhs.indexType;
-        indexCount = rhs.indexCount;
-        indexBuffer = rhs.indexBuffer;
-        pTextures = rhs.pTextures;
-        
-        for ( size_t i = 0; i < 3; ++i )
-        {
-            pTextures[ i ]->retain();
-        }
+        retainTextures();
     }
     
-    SubMesh::SubMesh( SubMesh&& rhs )
+    SubMesh::SubMesh( SubMesh&& rhs ) noexcept
+    :   primitiveType{ rhs.primitiveType }
+    ,   indexType{ rhs.indexType }
+    ,   indexCount{ rhs.indexCount }
+    ,   indexBuffer{ std::move( rhs.indexBuffer ) }
+    ,   pTextures{ rhs.pTextures }
     {
-        primitiveType = rhs.primitiveType;
-        indexType = rhs.indexType;
-        indexCount = rhs.indexCount;
-        indexBuffer = rhs.indexBuffer;
-        pTextures = rhs.pTextures;
-        
-        for ( size_t i = 0; i < 3; ++i )
-        {
-            pTextures[ i ]->retain();
-            rhs.pTextures[ i ]->release();
-            rhs.pTextures[ i ] = nullptr;
-        }
+        rhs.pTextures.fill( nullptr );
     }
     
     SubMesh& SubMesh::operator=( const SubMesh& rhs )
     {
-        primitiveType = rhs.primitiveType;
-        indexType = rhs.indexType;
-        indexCount = rhs.indexCount;
-        indexBuffer = rhs.indexBuffer;
-        pTextures = rhs.pTextures;
-        
-        for ( size_t i = 0; i < 3; ++i )
+        if ( this != &rhs )
         {
-            pTextures[ i ]->retain();
+            SubmeshTextureArray oldTextures = pTextures;
+            
+            primitiveType = rhs.primitiveType;
+            indexType = rhs.indexType;
+            indexCount = rhs.indexCount;
+            indexBuffer = rhs.indexBuffer;
+            pTextures = rhs.pTextures;
+            retainTextures();
+            
+            for ( MTL::Texture* pTex : oldTextures )
+            {
+                if ( pTex )
+                {
+                    pTex->release();
+                }
+            }
         }
         
         return *this;
     }
     
-    SubMesh& SubMesh::operator=( SubMesh&& rhs )
+    SubMesh& SubMesh::operator=( SubMesh&& rhs ) noexcept
     {
-        primitiveType = rhs.primitiveType;
-        indexType = rhs.indexType;
-        indexCount = rhs.indexCount;
-        indexBuffer = rhs.indexBuffer;
-        pTextures = rhs.pTextures;
-        
-        for ( size_t i = 0; i < 3; ++i )
+        if ( this != &rhs )
         {
-            pTextures[ i ]->retain();
-            rhs.pTextures[ i ]->release();
-            rhs.pTextures[ i ] = nullptr;
+            releaseTextures();
+            
+            primitiveType = rhs.primitiveType;
+            indexType = rhs.indexType;
+            indexCount = rhs.indexCount;
+            indexBuffer = std::move( rhs.indexBuffer );
+            pTextures = rhs.pTextures;
+            rhs.pTextures.fill( nullptr );
         }
         
         return *this;
@@ -116,33 +110,53 @@ namespace PCR
     
     SubMesh::~SubMesh()
     {
-        for ( auto&& pTex : pTextures )
+        releaseTextures();
+    }
+    
+    void SubMesh::retainTextures()
+    {
+        for ( MTL::Texture* pTex : pTextures )
         {
-            pTex->release();
+            if ( pTex )
+            {
+                pTex->retain();
+            }
         }
     }
     
-    MTL::PrimitiveType SubMesh::GetPrimitiveType() const
+    void SubMesh::releaseTextures()
+    {
+        for ( MTL::Texture*& pTex : pTextures )
+        {
+            if ( pTex )
+            {
+                pTex->release();
+                pTex = nullptr;
+            }
+        }
+    }
+    
+    MTL::PrimitiveType SubMesh::getPrimitiveType() const
     {
         return primitiveType;
     }
     
-    MTL::IndexType SubMesh::GetIndexType() const
+    MTL::IndexType SubMesh::getIndexType() const
     {
         return indexType;
     }
     
-    NS::UInteger SubMesh::GetIndexCount() const
+    NS::UInteger SubMesh::getIndexCount() const
     {
         return indexCount;
     }
     
-    const MeshBuffer& SubMesh::GetMeshBuffer() const
+    const MeshBuffer& SubMesh::getMeshBuffer() const
     {
         return indexBuffer;
     }
     
-    const SubmeshTextureArray& SubMesh::GetTextures() const
+    const SubmeshTextureArray& SubMesh::getTextures() const
     {
         return pTextures;
     }

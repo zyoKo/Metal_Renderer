@@ -8,6 +8,10 @@
 #ifndef Renderer_hpp
 #define Renderer_hpp
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include <Metal/Metal.hpp>
 
 #include "Core/Core.hpp"
@@ -15,6 +19,11 @@
 
 FD_MTL
 FD_MTK
+
+namespace PCR
+{
+    class Mesh;
+}
 
 namespace PCR
 {
@@ -42,13 +51,9 @@ namespace PCR
         
         MTL::ComputePipelineState* _pComputePipelineStateObject;
         
-        MTL::Buffer* _pVertexDataBuffer;
-        
         MTL::Buffer* _pInstanceDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
         
         MTL::Buffer* _pCameraDataBuffers[ MAX_FRAMES_IN_FLIGHT ];
-        
-        MTL::Buffer* _pIndexBuffer;
         
         MTL::Buffer* _pTextureAnimationBuffer;
         
@@ -60,9 +65,24 @@ namespace PCR
         
         dispatch_semaphore_t _semaphore;
         
+        struct NamedMesh
+        {
+            std::string name;
+            
+            std::unique_ptr< Mesh > pMesh;
+        };
+        
+        std::vector< NamedMesh > _meshes;
+        
+        size_t _activeMeshIndex;
+        
         void buildShaders();
         
         void buildBuffers();
+        
+        void buildMeshes();
+        
+        void handleInput();
         
         void buildDepthStencilStates();
         
@@ -71,6 +91,10 @@ namespace PCR
         void buildComputePipeline();
         
         void generateMandelbrotTexture( MTL::CommandBuffer* pCommandBuffer );
+        
+        void drawMesh( MTL::RenderCommandEncoder* pEncoder,
+                       const Mesh& mesh,
+                       NS::UInteger instanceCount );
     };
 }
 

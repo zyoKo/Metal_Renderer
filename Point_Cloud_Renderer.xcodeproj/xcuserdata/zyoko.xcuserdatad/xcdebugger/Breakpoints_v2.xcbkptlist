@@ -7,48 +7,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "A4EEBFA8-8042-427B-AD18-63BD37A61B46"
+            uuid = "9575D35C-BD7F-47A2-805C-5613B00C5C22"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Point_Cloud_Renderer/Core/Application/MyAppDelegate.cpp"
+            filePath = "Point_Cloud_Renderer/Renderer/Renderer.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "57"
-            endingLineNumber = "57"
-            landmarkName = "MyAppDelegate::createMenuBar()"
+            startingLineNumber = "324"
+            endingLineNumber = "324"
+            landmarkName = "Renderer::buildBuffers()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "0820B90B-1473-4FFB-B5CA-B569D5E87A8E"
+            uuid = "E12360AC-2CF4-45F4-B7A2-4AE069A2C4F5"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Point_Cloud_Renderer/Core/Application/MyAppDelegate.cpp"
+            filePath = "Point_Cloud_Renderer/Renderer/Renderer.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "26"
-            endingLineNumber = "26"
-            landmarkName = "MyAppDelegate::createMenuBar()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "EFA0D3D6-4FEB-4A94-86D3-1628CFBD3DEF"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Point_Cloud_Renderer/Core/Application/MyAppDelegate.cpp"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "62"
-            endingLineNumber = "62"
-            landmarkName = "MyAppDelegate::applicationWillFinishLaunching(pNotification)"
+            startingLineNumber = "327"
+            endingLineNumber = "327"
+            landmarkName = "Renderer::buildBuffers()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

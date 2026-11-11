@@ -8,6 +8,9 @@
 #ifndef Utility_hpp
 #define Utility_hpp
 
+#include <cassert>
+
+#include <Foundation/Foundation.hpp>
 #include <simd/simd.h>
 
 namespace PCR::Math
@@ -80,6 +83,16 @@ namespace PCR::Math
     static simd::float3x3 discardTranslation( const simd::float4x4& m )
     {
         return simd_matrix( m.columns[0].xyz, m.columns[1].xyz, m.columns[2].xyz );
+    }
+    
+    static size_t alignSize(size_t inSize, size_t alignment)
+    {
+        // Asset if align is not a power of 2
+        assert(((alignment-1) & alignment) == 0);
+
+        const NS::UInteger alignmentMask = alignment - 1;
+
+        return ((inSize + alignmentMask) & (~alignmentMask));
     }
 }
 

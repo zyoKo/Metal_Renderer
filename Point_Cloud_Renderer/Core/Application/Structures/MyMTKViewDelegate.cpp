@@ -8,6 +8,7 @@
 #include "MyMTKViewDelegate.hpp"
 
 #include "Renderer/Renderer.hpp"
+#include "Window/Input/Input.hpp"
 
 namespace PCR
 {
@@ -24,5 +25,6 @@ namespace PCR
     void MyMTKViewDelegate::drawInMTKView( MTK::View* pView )
     {
         _pRenderer->draw( pView );
+        Input::endFrame();
     }
 }
