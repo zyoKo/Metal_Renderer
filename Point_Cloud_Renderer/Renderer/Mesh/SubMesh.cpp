@@ -122,27 +122,27 @@ namespace PCR
         }
     }
     
-    MTL::PrimitiveType SubMesh::GetPrimitiveType() const
+    MTL::PrimitiveType SubMesh::getPrimitiveType() const
     {
         return primitiveType;
     }
     
-    MTL::IndexType SubMesh::GetIndexType() const
+    MTL::IndexType SubMesh::getIndexType() const
     {
         return indexType;
     }
     
-    NS::UInteger SubMesh::GetIndexCount() const
+    NS::UInteger SubMesh::getIndexCount() const
     {
         return indexCount;
     }
     
-    const MeshBuffer& SubMesh::GetMeshBuffer() const
+    const MeshBuffer& SubMesh::getMeshBuffer() const
     {
         return indexBuffer;
     }
     
-    const SubmeshTextureArray& SubMesh::GetTextures() const
+    const SubmeshTextureArray& SubMesh::getTextures() const
     {
         return pTextures;
     }

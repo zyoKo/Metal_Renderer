@@ -7,7 +7,11 @@
 
 #include "MeshBuffer.hpp"
 
+#include <set>
+
 #include <MetalKit/MetalKit.hpp>
+
+#include "Math/Utility.hpp"
  
 namespace PCR
 {
@@ -17,7 +21,7 @@ namespace PCR
     ,   m_offset{ 0 }
     ,   m_argumentIndex{ 0 }
     { }
-
+    
     MeshBuffer::MeshBuffer( MTL::Buffer* pBuffer,
                             NS::UInteger offset,
                             NS::UInteger length,
@@ -27,14 +31,14 @@ namespace PCR
     ,   m_offset{ offset }
     ,   m_argumentIndex{ argumentIndex }
     { }
-
+    
     MeshBuffer::MeshBuffer( const MeshBuffer& rhs )
     :   m_pBuffer{ rhs.m_pBuffer->retain() }
     ,   m_length{ rhs.m_length }
     ,   m_offset{ rhs.m_offset }
     ,   m_argumentIndex{ rhs.m_argumentIndex }
     { }
-
+    
     MeshBuffer& MeshBuffer::operator=( const MeshBuffer& rhs )
     {
         m_pBuffer = rhs.m_pBuffer->retain();
@@ -44,7 +48,7 @@ namespace PCR
         
         return *this;
     }
-
+    
     MeshBuffer::MeshBuffer( MeshBuffer&& rhs )
     :   m_pBuffer{ rhs.m_pBuffer->retain() }
     ,   m_length{ rhs.m_length }
@@ -53,7 +57,7 @@ namespace PCR
     {
         rhs.m_pBuffer->release();
     }
-
+    
     MeshBuffer& MeshBuffer::operator=( MeshBuffer&& rhs )
     {
         m_pBuffer = rhs.m_pBuffer->retain();
@@ -65,9 +69,53 @@ namespace PCR
         
         return *this;
     }
-
+    
     MeshBuffer::~MeshBuffer()
     {
         m_pBuffer->release();
+    }
+    
+    /* [[ nodiscard ]] static */
+    std::vector< MeshBuffer >
+    MeshBuffer::makeVertexBuffers( MTL::Device* pDevice,
+                                   const MTL::VertexDescriptor* pDescriptor,
+                                   NS::UInteger vertexCount,
+                                   NS::UInteger indexBufferSize )
+    {
+        std::set< NS::UInteger > bufferIndicesUsed;
+
+        for( int i = 0; i < 31; ++i )
+        {
+            bufferIndicesUsed.insert( pDescriptor->attributes()->object( i )->bufferIndex() );
+        }
+
+        std::vector< MeshBuffer > vertexBuffers;
+
+        indexBufferSize = Math::alignSize( indexBufferSize, 256 );
+
+        NS::UInteger bufferLength = indexBufferSize;
+        for( auto bufferIndex : bufferIndicesUsed )
+        {
+            NS::UInteger offset = bufferLength;
+            
+            size_t inputSize = vertexCount * pDescriptor->layouts()->object( bufferIndex )->stride();
+            NS::UInteger sectionLength = Math::alignSize( inputSize, 256 );
+
+            bufferLength += sectionLength;
+
+            vertexBuffers.emplace_back( MeshBuffer( nullptr, offset, sectionLength, bufferIndex ) );
+        }
+
+        MTL::Buffer* pMetalBuffer = pDevice->newBuffer( bufferLength, MTL::ResourceStorageModeShared );
+
+        for( auto&& vertexBuffer : vertexBuffers )
+        {
+            // safe to assume vertexBuffer.m_pBuffer is nullptr, no need to release it here
+            vertexBuffer.m_pBuffer = pMetalBuffer->retain();
+        }
+        
+        pMetalBuffer->release();
+        
+        return vertexBuffers;
     }
 }

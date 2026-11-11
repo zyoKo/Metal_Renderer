@@ -13,13 +13,13 @@
 #include <MetalKit/MetalKit.hpp>
 
 #include "Renderer/Buffer/MeshBuffer.hpp"
-#include "Renderer/Mesh/Data/Constants.hpp"
 
 namespace PCR
 {
+    static constexpr int SUBMESH_TEXTURE_COUNT{ 3 };
     using SubmeshTextureArray = std::array< MTL::Texture*, SUBMESH_TEXTURE_COUNT >;
     
-    class SubMesh
+    class SubMesh final
     {
     public:
         SubMesh();
@@ -45,15 +45,15 @@ namespace PCR
         
         ~SubMesh();
         
-        MTL::PrimitiveType GetPrimitiveType() const;
+        MTL::PrimitiveType getPrimitiveType() const;
         
-        MTL::IndexType GetIndexType() const;
+        MTL::IndexType getIndexType() const;
         
-        NS::UInteger GetIndexCount() const;
+        NS::UInteger getIndexCount() const;
         
-        const MeshBuffer& GetMeshBuffer() const;
+        const MeshBuffer& getMeshBuffer() const;
         
-        const SubmeshTextureArray& GetTextures() const;
+        const SubmeshTextureArray& getTextures() const;
         
     private:
         MTL::PrimitiveType primitiveType;

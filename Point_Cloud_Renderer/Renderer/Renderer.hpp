@@ -18,6 +18,11 @@ FD_MTK
 
 namespace PCR
 {
+    class Mesh;
+}
+
+namespace PCR
+{
     class Renderer
     {
     public:
@@ -59,6 +64,8 @@ namespace PCR
         uint _animationIndex;
         
         dispatch_semaphore_t _semaphore;
+        
+        Mesh* mesh;
         
         void buildShaders();
         

@@ -18,6 +18,9 @@
 #include "Renderer/Structures/CameraData.hpp"
 #include "Math/Utility.hpp"
 #include "Renderer/Mesh/Types/VertexData.h"
+#include "Renderer/Mesh/Mesh.hpp"
+#include "Renderer/Mesh/SubMesh.hpp"
+#include "Renderer/Structures/ShaderTypes.hpp"
 
 namespace PCR
 {
@@ -50,6 +53,7 @@ namespace PCR
             _pInstanceDataBuffers[ i ]->release();
             _pCameraDataBuffers[ i ]->release();
         }
+        delete mesh;
         _pComputePipelineStateObject->release();
         _pRenderPipelineStateObject->release();
         _pCommandQueue->release();
@@ -281,6 +285,63 @@ namespace PCR
         }
         
         _pTextureAnimationBuffer = _pDevice->newBuffer( sizeof( uint ), MTL::ResourceStorageModeManaged );
+        
+        // TODO: Try Mesh Class
+        
+        MTL::VertexDescriptor* vertexDesc = MTL::VertexDescriptor::alloc()->init();
+        {
+            // Position
+            VertexAttribute vertexAttribute = VertexAttributePosition;
+            vertexDesc->attributes()->object( vertexAttribute )->setFormat( MTL::VertexFormatFloat3 );
+            vertexDesc->attributes()->object( vertexAttribute )->setOffset( 0 );
+            vertexDesc->attributes()->object( vertexAttribute )->setBufferIndex( BufferIndexMeshPosition );
+            
+            // TexCoord
+            vertexAttribute = VertexAttributeTexCoord;
+            vertexDesc->attributes()->object( vertexAttribute )->setFormat( MTL::VertexFormatFloat2 );
+            vertexDesc->attributes()->object( vertexAttribute )->setOffset( 0 );
+            vertexDesc->attributes()->object( vertexAttribute )->setBufferIndex( BufferIndexMeshGenerics );
+            
+            // Normals
+            vertexAttribute = VertexAttributeNormal;
+            vertexDesc->attributes()->object( vertexAttribute )->setFormat( MTL::VertexFormatFloat3 );
+            vertexDesc->attributes()->object( vertexAttribute )->setOffset( 0 );
+            vertexDesc->attributes()->object( vertexAttribute )->setBufferIndex( BufferIndexMeshGenerics );
+            
+            // Position Buffer Layout
+            BufferIndex bufferIndex = BufferIndexMeshPosition;
+            vertexDesc->layouts()->object( bufferIndex )->setStride( 12 );
+            vertexDesc->layouts()->object( bufferIndex )->setStepRate( 1 );
+            vertexDesc->layouts()->object( bufferIndex )->setStepFunction( MTL::VertexStepFunctionPerVertex );
+            
+            // Generic Attribute Buffer Layout
+            bufferIndex = BufferIndexMeshGenerics;
+            vertexDesc->layouts()->object( bufferIndex )->setStride( 12 );
+            vertexDesc->layouts()->object( bufferIndex )->setStepRate( 1 );
+            vertexDesc->layouts()->object( bufferIndex )->setStepFunction( MTL::VertexStepFunctionPerVertex );
+        }
+        
+        const size_t verticesCount = vertexDataSize / sizeof( VertexData );
+        const size_t indicesCount = indexDataSize / sizeof( uint16_t );
+        
+        std::vector< MeshBuffer > meshBufferArray = MeshBuffer::makeVertexBuffers( _pDevice, vertexDesc, verticesCount, indexDataSize );
+        
+        MeshBuffer indexBuffer( _pIndexBuffer, 0, _pIndexBuffer->length(), 0 );
+        
+        std::vector< SubMesh > subMeshArray;
+        subMeshArray.reserve( meshBufferArray.size() );
+        for ( size_t i = 0; i < meshBufferArray.size(); ++i )
+        {
+            // TODO: Support Textures
+            SubMesh subMesh( MTL::PrimitiveTypeTriangle,
+                             MTL::IndexTypeUInt16,
+                             indicesCount,
+                             indexBuffer );
+            
+            subMeshArray.emplace_back( subMesh );
+        }
+        
+        mesh = new Mesh( subMeshArray, meshBufferArray );
     }
     
     void Renderer::buildDepthStencilStates()
@@ -300,7 +361,7 @@ namespace PCR
         pTextureDesc->setTextureType( MTL::TextureType2D );
         pTextureDesc->setStorageMode( MTL::StorageModeManaged );
         pTextureDesc->setUsage( MTL::ResourceUsageSample | MTL::ResourceUsageRead | MTL::ResourceUsageWrite );
-        
+
         _pTexture = _pDevice->newTexture( pTextureDesc.get() );
     }
     

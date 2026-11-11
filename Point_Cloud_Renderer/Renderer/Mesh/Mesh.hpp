@@ -18,11 +18,11 @@ namespace PCR
     public:
         Mesh() = default;
         
-        explicit Mesh( const std::vector<SubMesh>& subMeshes,
-                       const std::vector<MeshBuffer>& meshBuffers );
+        explicit Mesh( const std::vector< SubMesh >& subMeshes,
+                       const std::vector< MeshBuffer >& meshBuffers );
         
         explicit Mesh( const SubMesh& subMesh,
-                       const std::vector<MeshBuffer>& meshBuffers );
+                       const std::vector< MeshBuffer >& meshBuffers );
         
         explicit Mesh( const Mesh& rhs );
         

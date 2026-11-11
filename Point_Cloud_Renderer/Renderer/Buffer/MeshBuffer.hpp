@@ -45,7 +45,8 @@ namespace PCR
         
         NS::UInteger getOffset() const;
 
-        static std::vector< MeshBuffer >
+        [[ nodiscard ]] static
+        std::vector< MeshBuffer >
         makeVertexBuffers( MTL::Device* pDevice,
                            const MTL::VertexDescriptor* pDescriptor,
                            NS::UInteger vertexCount,
