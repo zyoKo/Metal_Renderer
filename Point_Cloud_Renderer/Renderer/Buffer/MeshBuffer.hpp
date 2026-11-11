@@ -31,9 +31,9 @@ namespace PCR
         
         MeshBuffer& operator=( const MeshBuffer& rhs );
 
-        MeshBuffer( MeshBuffer&& rhs );
+        MeshBuffer( MeshBuffer&& rhs ) noexcept;
         
-        MeshBuffer& operator=( MeshBuffer&& rhs );
+        MeshBuffer& operator=( MeshBuffer&& rhs ) noexcept;
 
         ~MeshBuffer();
 

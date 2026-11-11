@@ -8,6 +8,7 @@
 #include "MeshBuffer.hpp"
 
 #include <set>
+#include <utility>
 
 #include <MetalKit/MetalKit.hpp>
 
@@ -26,14 +27,14 @@ namespace PCR
                             NS::UInteger offset,
                             NS::UInteger length,
                             NS::UInteger argumentIndex /* = NS::UIntegerMax */ )
-    :   m_pBuffer{ pBuffer->retain() }
+    :   m_pBuffer{ pBuffer ? pBuffer->retain() : nullptr }
     ,   m_length{ length }
     ,   m_offset{ offset }
     ,   m_argumentIndex{ argumentIndex }
     { }
     
     MeshBuffer::MeshBuffer( const MeshBuffer& rhs )
-    :   m_pBuffer{ rhs.m_pBuffer->retain() }
+    :   m_pBuffer{ rhs.m_pBuffer ? rhs.m_pBuffer->retain() : nullptr }
     ,   m_length{ rhs.m_length }
     ,   m_offset{ rhs.m_offset }
     ,   m_argumentIndex{ rhs.m_argumentIndex }
@@ -41,38 +42,75 @@ namespace PCR
     
     MeshBuffer& MeshBuffer::operator=( const MeshBuffer& rhs )
     {
-        m_pBuffer = rhs.m_pBuffer->retain();
-        m_length = rhs.m_length;
-        m_offset = rhs.m_offset;
-        m_argumentIndex = rhs.m_argumentIndex;
+        if ( this != &rhs )
+        {
+            // Retain first: both may hold the same MTL::Buffer.
+            MTL::Buffer* pNewBuffer = rhs.m_pBuffer ? rhs.m_pBuffer->retain() : nullptr;
+            if ( m_pBuffer )
+            {
+                m_pBuffer->release();
+            }
+            m_pBuffer = pNewBuffer;
+            
+            m_length = rhs.m_length;
+            m_offset = rhs.m_offset;
+            m_argumentIndex = rhs.m_argumentIndex;
+        }
         
         return *this;
     }
     
-    MeshBuffer::MeshBuffer( MeshBuffer&& rhs )
-    :   m_pBuffer{ rhs.m_pBuffer->retain() }
+    MeshBuffer::MeshBuffer( MeshBuffer&& rhs ) noexcept
+    :   m_pBuffer{ std::exchange( rhs.m_pBuffer, nullptr ) }
     ,   m_length{ rhs.m_length }
     ,   m_offset{ rhs.m_offset }
     ,   m_argumentIndex{ rhs.m_argumentIndex }
-    {
-        rhs.m_pBuffer->release();
-    }
+    { }
     
-    MeshBuffer& MeshBuffer::operator=( MeshBuffer&& rhs )
+    MeshBuffer& MeshBuffer::operator=( MeshBuffer&& rhs ) noexcept
     {
-        m_pBuffer = rhs.m_pBuffer->retain();
-        rhs.m_pBuffer->release();
-        
-        m_length = rhs.m_length;
-        m_offset = rhs.m_offset;
-        m_argumentIndex = rhs.m_argumentIndex;
+        if ( this != &rhs )
+        {
+            if ( m_pBuffer )
+            {
+                m_pBuffer->release();
+            }
+            m_pBuffer = std::exchange( rhs.m_pBuffer, nullptr );
+            
+            m_length = rhs.m_length;
+            m_offset = rhs.m_offset;
+            m_argumentIndex = rhs.m_argumentIndex;
+        }
         
         return *this;
     }
     
     MeshBuffer::~MeshBuffer()
     {
-        m_pBuffer->release();
+        if ( m_pBuffer )
+        {
+            m_pBuffer->release();
+        }
+    }
+    
+    MTL::Buffer* MeshBuffer::getBuffer() const
+    {
+        return m_pBuffer;
+    }
+    
+    NS::UInteger MeshBuffer::getLength() const
+    {
+        return m_length;
+    }
+    
+    NS::UInteger MeshBuffer::getArgumentIndex() const
+    {
+        return m_argumentIndex;
+    }
+    
+    NS::UInteger MeshBuffer::getOffset() const
+    {
+        return m_offset;
     }
     
     /* [[ nodiscard ]] static */

@@ -37,11 +37,11 @@ namespace PCR
         
         SubMesh( const SubMesh& rhs );
         
-        SubMesh( SubMesh&& rhs );
+        SubMesh( SubMesh&& rhs ) noexcept;
         
         SubMesh& operator=( const SubMesh& rhs );
         
-        SubMesh& operator=( SubMesh&& rhs );
+        SubMesh& operator=( SubMesh&& rhs ) noexcept;
         
         ~SubMesh();
         
@@ -65,6 +65,10 @@ namespace PCR
         MeshBuffer indexBuffer;
         
         SubmeshTextureArray pTextures;
+        
+        void retainTextures();
+        
+        void releaseTextures();
     };
 }
 

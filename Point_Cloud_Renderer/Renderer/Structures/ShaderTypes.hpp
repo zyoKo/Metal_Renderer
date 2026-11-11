@@ -29,7 +29,9 @@ enum TextureIndex
 enum BufferIndex
 {
     BufferIndexMeshPosition = 0,
-    BufferIndexMeshGenerics = 1
+    BufferIndexMeshGenerics = 1,
+    BufferIndexInstanceData = 2,
+    BufferIndexCameraData   = 3
 };
 
 #endif /* ShaderTypes_hpp */

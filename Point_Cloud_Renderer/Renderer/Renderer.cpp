@@ -19,8 +19,10 @@
 #include "Math/Utility.hpp"
 #include "Renderer/Mesh/Types/VertexData.h"
 #include "Renderer/Mesh/Mesh.hpp"
+#include "Renderer/Mesh/MeshFactory.hpp"
 #include "Renderer/Mesh/SubMesh.hpp"
 #include "Renderer/Structures/ShaderTypes.hpp"
+#include "Window/Input/Input.hpp"
 
 namespace PCR
 {
@@ -29,6 +31,7 @@ namespace PCR
     ,   _frame{ 0 }
     ,   _angle{ 0.0f }
     ,   _animationIndex{ 0 }
+    ,   _activeMeshIndex{ 0 }
     {
         _pCommandQueue = _pDevice->newCommandQueue();
         buildShaders();
@@ -36,6 +39,7 @@ namespace PCR
         buildComputePipeline();
         buildTextures();
         buildBuffers();
+        buildMeshes();
         
         _semaphore = dispatch_semaphore_create( MAX_FRAMES_IN_FLIGHT );
     }
@@ -45,15 +49,12 @@ namespace PCR
         _pTexture->release();
         _pShaderLibrary->release();
         _pDepthStencilState->release();
-        _pVertexDataBuffer->release();
-        _pIndexBuffer->release();
         _pTextureAnimationBuffer->release();
         for ( int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i )
         {
             _pInstanceDataBuffers[ i ]->release();
             _pCameraDataBuffers[ i ]->release();
         }
-        delete mesh;
         _pComputePipelineStateObject->release();
         _pRenderPipelineStateObject->release();
         _pCommandQueue->release();
@@ -63,6 +64,8 @@ namespace PCR
     void Renderer::draw( MTK::View* pView )
     {
         auto pAutoReleasePool = NS::TransferPtr< NS::AutoreleasePool >( NS::AutoreleasePool::alloc()->init() );
+        
+        handleInput();
         
         _frame = (_frame + 1) % MAX_FRAMES_IN_FLIGHT;
         MTL::Buffer* pCurrentInstanceDataBuffer = _pInstanceDataBuffers[ _frame ];
@@ -161,9 +164,8 @@ namespace PCR
         pRenderCommandEncoder->setDepthStencilState( _pDepthStencilState );
         
         /* MTL::Buffer*, offset, index */
-        pRenderCommandEncoder->setVertexBuffer( _pVertexDataBuffer, 0, 0 );
-        pRenderCommandEncoder->setVertexBuffer( pCurrentInstanceDataBuffer, 0, 1 );
-        pRenderCommandEncoder->setVertexBuffer( pCurrentCameraBuffer, 0, 2 );
+        pRenderCommandEncoder->setVertexBuffer( pCurrentInstanceDataBuffer, 0, BufferIndexInstanceData );
+        pRenderCommandEncoder->setVertexBuffer( pCurrentCameraBuffer, 0, BufferIndexCameraData );
         
         /* MTL::Texture*, index */
         pRenderCommandEncoder->setFragmentTexture( _pTexture, 0 );
@@ -172,12 +174,7 @@ namespace PCR
         pRenderCommandEncoder->setFrontFacingWinding( MTL::Winding::WindingCounterClockwise );
         
         // Draw-call
-        pRenderCommandEncoder->drawIndexedPrimitives( MTL::PrimitiveType::PrimitiveTypeTriangle,
-                                                     /* indexCount */ 6 * 6,
-                                                     MTL::IndexType::IndexTypeUInt16,
-                                                     _pIndexBuffer,
-                                                     /* indexBufferOffset */ 0,
-                                                     MAX_NUM_INSTANCES);
+        drawMesh( pRenderCommandEncoder, *_meshes[ _activeMeshIndex ].pMesh, MAX_NUM_INSTANCES );
         
         pRenderCommandEncoder->endEncoding();
         pCommandBuffer->presentDrawable( pView->currentDrawable() );
@@ -198,6 +195,7 @@ namespace PCR
         auto pRenderPipelineDesc = NS::TransferPtr( MTL::RenderPipelineDescriptor::alloc()->init() );
         pRenderPipelineDesc->setVertexFunction( pVertexMainFn.get() );
         pRenderPipelineDesc->setFragmentFunction( pFragmentMainFn.get() );
+        pRenderPipelineDesc->setVertexDescriptor( MeshFactory::makeVertexDescriptor().get() );
         pRenderPipelineDesc->colorAttachments()->object( 0 )->setPixelFormat( MTL::PixelFormatBGRA8Unorm_sRGB );
         pRenderPipelineDesc->setDepthAttachmentPixelFormat( MTL::PixelFormat::PixelFormatDepth16Unorm );
         
@@ -214,64 +212,6 @@ namespace PCR
     
     void Renderer::buildBuffers()
     {
-        constexpr float s = 0.5f;
-        
-        VertexData verts[] =
-        {
-            //                                         Texture
-            //   Positions           Normals         Coordinates
-            { { -s, -s, +s }, {  0.f,  0.f,  1.f }, { 0.f, 1.f } },
-            { { +s, -s, +s }, {  0.f,  0.f,  1.f }, { 1.f, 1.f } },
-            { { +s, +s, +s }, {  0.f,  0.f,  1.f }, { 1.f, 0.f } },
-            { { -s, +s, +s }, {  0.f,  0.f,  1.f }, { 0.f, 0.f } },
-
-            { { +s, -s, +s }, {  1.f,  0.f,  0.f }, { 0.f, 1.f } },
-            { { +s, -s, -s }, {  1.f,  0.f,  0.f }, { 1.f, 1.f } },
-            { { +s, +s, -s }, {  1.f,  0.f,  0.f }, { 1.f, 0.f } },
-            { { +s, +s, +s }, {  1.f,  0.f,  0.f }, { 0.f, 0.f } },
-
-            { { +s, -s, -s }, {  0.f,  0.f, -1.f }, { 0.f, 1.f } },
-            { { -s, -s, -s }, {  0.f,  0.f, -1.f }, { 1.f, 1.f } },
-            { { -s, +s, -s }, {  0.f,  0.f, -1.f }, { 1.f, 0.f } },
-            { { +s, +s, -s }, {  0.f,  0.f, -1.f }, { 0.f, 0.f } },
-
-            { { -s, -s, -s }, { -1.f,  0.f,  0.f }, { 0.f, 1.f } },
-            { { -s, -s, +s }, { -1.f,  0.f,  0.f }, { 1.f, 1.f } },
-            { { -s, +s, +s }, { -1.f,  0.f,  0.f }, { 1.f, 0.f } },
-            { { -s, +s, -s }, { -1.f,  0.f,  0.f }, { 0.f, 0.f } },
-
-            { { -s, +s, +s }, {  0.f,  1.f,  0.f }, { 0.f, 1.f } },
-            { { +s, +s, +s }, {  0.f,  1.f,  0.f }, { 1.f, 1.f } },
-            { { +s, +s, -s }, {  0.f,  1.f,  0.f }, { 1.f, 0.f } },
-            { { -s, +s, -s }, {  0.f,  1.f,  0.f }, { 0.f, 0.f } },
-
-            { { -s, -s, -s }, {  0.f, -1.f,  0.f }, { 0.f, 1.f } },
-            { { +s, -s, -s }, {  0.f, -1.f,  0.f }, { 1.f, 1.f } },
-            { { +s, -s, +s }, {  0.f, -1.f,  0.f }, { 1.f, 0.f } },
-            { { -s, -s, +s }, {  0.f, -1.f,  0.f }, { 0.f, 0.f } }
-        };
-        
-        uint16_t indices[] = {
-             0,  1,  2,  2,  3,  0, /* front */
-             4,  5,  6,  6,  7,  4, /* right */
-             8,  9, 10, 10, 11,  8, /* back */
-            12, 13, 14, 14, 15, 12, /* left */
-            16, 17, 18, 18, 19, 16, /* top */
-            20, 21, 22, 22, 23, 20, /* bottom */
-        };
-        
-        constexpr size_t vertexDataSize = sizeof( verts );
-        constexpr size_t indexDataSize = sizeof( indices );
-        
-        _pVertexDataBuffer = _pDevice->newBuffer( vertexDataSize, MTL::ResourceStorageModeManaged );
-        _pIndexBuffer = _pDevice->newBuffer( indexDataSize, MTL::ResourceStorageModeManaged );
-        
-        memcpy( _pVertexDataBuffer->contents(), verts, vertexDataSize );
-        memcpy( _pIndexBuffer->contents(), indices, indexDataSize );
-        
-        _pVertexDataBuffer->didModifyRange( NS::Range::Make( 0, _pVertexDataBuffer->length() ) );
-        _pIndexBuffer->didModifyRange( NS::Range::Make( 0, _pIndexBuffer->length() ) );
-        
         constexpr size_t instanceDataSize = MAX_FRAMES_IN_FLIGHT * MAX_NUM_INSTANCES * sizeof( InstanceData );
         for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i )
         {
@@ -285,63 +225,60 @@ namespace PCR
         }
         
         _pTextureAnimationBuffer = _pDevice->newBuffer( sizeof( uint ), MTL::ResourceStorageModeManaged );
+    }
+    
+    void Renderer::buildMeshes()
+    {
+        // Position in this list = number key (1 = first).
+        _meshes.push_back( { "Cube",            std::make_unique< Mesh >( MeshFactory::makeCube( _pDevice ) ) } );
+        _meshes.push_back( { "Sphere",          std::make_unique< Mesh >( MeshFactory::makeSphere( _pDevice ) ) } );
+        _meshes.push_back( { "Low-poly Sphere", std::make_unique< Mesh >( MeshFactory::makeSphere( _pDevice, 0.5f, 8, 4 ) ) } );
+        _meshes.push_back( { "Pyramid",         std::make_unique< Mesh >( MeshFactory::makePyramid( _pDevice ) ) } );
         
-        // TODO: Try Mesh Class
+        _activeMeshIndex = 0;
+        __builtin_printf( "[Renderer] Mesh: %s (press 1-%zu to switch)\n", _meshes[ 0 ].name.c_str(), _meshes.size() );
+    }
+    
+    void Renderer::handleInput()
+    {
+        const int requested = Input::numberKeyPressed();
         
-        MTL::VertexDescriptor* vertexDesc = MTL::VertexDescriptor::alloc()->init();
+        if ( requested < 0 || static_cast< size_t >( requested ) >= _meshes.size() )
         {
-            // Position
-            VertexAttribute vertexAttribute = VertexAttributePosition;
-            vertexDesc->attributes()->object( vertexAttribute )->setFormat( MTL::VertexFormatFloat3 );
-            vertexDesc->attributes()->object( vertexAttribute )->setOffset( 0 );
-            vertexDesc->attributes()->object( vertexAttribute )->setBufferIndex( BufferIndexMeshPosition );
-            
-            // TexCoord
-            vertexAttribute = VertexAttributeTexCoord;
-            vertexDesc->attributes()->object( vertexAttribute )->setFormat( MTL::VertexFormatFloat2 );
-            vertexDesc->attributes()->object( vertexAttribute )->setOffset( 0 );
-            vertexDesc->attributes()->object( vertexAttribute )->setBufferIndex( BufferIndexMeshGenerics );
-            
-            // Normals
-            vertexAttribute = VertexAttributeNormal;
-            vertexDesc->attributes()->object( vertexAttribute )->setFormat( MTL::VertexFormatFloat3 );
-            vertexDesc->attributes()->object( vertexAttribute )->setOffset( 0 );
-            vertexDesc->attributes()->object( vertexAttribute )->setBufferIndex( BufferIndexMeshGenerics );
-            
-            // Position Buffer Layout
-            BufferIndex bufferIndex = BufferIndexMeshPosition;
-            vertexDesc->layouts()->object( bufferIndex )->setStride( 12 );
-            vertexDesc->layouts()->object( bufferIndex )->setStepRate( 1 );
-            vertexDesc->layouts()->object( bufferIndex )->setStepFunction( MTL::VertexStepFunctionPerVertex );
-            
-            // Generic Attribute Buffer Layout
-            bufferIndex = BufferIndexMeshGenerics;
-            vertexDesc->layouts()->object( bufferIndex )->setStride( 12 );
-            vertexDesc->layouts()->object( bufferIndex )->setStepRate( 1 );
-            vertexDesc->layouts()->object( bufferIndex )->setStepFunction( MTL::VertexStepFunctionPerVertex );
+            return;
         }
         
-        const size_t verticesCount = vertexDataSize / sizeof( VertexData );
-        const size_t indicesCount = indexDataSize / sizeof( uint16_t );
-        
-        std::vector< MeshBuffer > meshBufferArray = MeshBuffer::makeVertexBuffers( _pDevice, vertexDesc, verticesCount, indexDataSize );
-        
-        MeshBuffer indexBuffer( _pIndexBuffer, 0, _pIndexBuffer->length(), 0 );
-        
-        std::vector< SubMesh > subMeshArray;
-        subMeshArray.reserve( meshBufferArray.size() );
-        for ( size_t i = 0; i < meshBufferArray.size(); ++i )
+        if ( static_cast< size_t >( requested ) != _activeMeshIndex )
         {
-            // TODO: Support Textures
-            SubMesh subMesh( MTL::PrimitiveTypeTriangle,
-                             MTL::IndexTypeUInt16,
-                             indicesCount,
-                             indexBuffer );
-            
-            subMeshArray.emplace_back( subMesh );
+            _activeMeshIndex = static_cast< size_t >( requested );
+            __builtin_printf( "[Renderer] Mesh: %s\n", _meshes[ _activeMeshIndex ].name.c_str() );
+        }
+    }
+    
+    void Renderer::drawMesh( MTL::RenderCommandEncoder* pEncoder,
+                             const Mesh& mesh,
+                             NS::UInteger instanceCount )
+    {
+        assert( pEncoder );
+        
+        for ( const MeshBuffer& vertexBuffer : mesh.GetMeshBuffers() )
+        {
+            pEncoder->setVertexBuffer( vertexBuffer.getBuffer(),
+                                       vertexBuffer.getOffset(),
+                                       vertexBuffer.getArgumentIndex() );
         }
         
-        mesh = new Mesh( subMeshArray, meshBufferArray );
+        for ( const SubMesh& subMesh : mesh.GetSubMeshes() )
+        {
+            const MeshBuffer& indexBuffer = subMesh.getMeshBuffer();
+            
+            pEncoder->drawIndexedPrimitives( subMesh.getPrimitiveType(),
+                                             subMesh.getIndexCount(),
+                                             subMesh.getIndexType(),
+                                             indexBuffer.getBuffer(),
+                                             indexBuffer.getOffset(),
+                                             instanceCount );
+        }
     }
     
     void Renderer::buildDepthStencilStates()

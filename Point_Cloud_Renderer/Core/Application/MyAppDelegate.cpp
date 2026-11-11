@@ -10,11 +10,13 @@
 #include "Core.hpp"
 #include "Structures/MyMTKViewDelegate.hpp"
 #include "Window/Window.hpp"
+#include "Window/Input/Input.hpp"
 
 namespace PCR
 {
     MyAppDelegate::~MyAppDelegate()
     {
+        Input::shutdown();
         _pMtkView->release();
         pWindow->release();
         _pDevice->release();
@@ -85,6 +87,8 @@ namespace PCR
         _pMtkView->setDelegate( _pViewDelegate );
 
         pWindow->create( _pMtkView );
+        
+        Input::initialize();
 
         NS::Application* pApp = reinterpret_cast< NS::Application* >( pNotification->object() );
         pApp->activateIgnoringOtherApps( true );

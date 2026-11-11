@@ -8,6 +8,8 @@
 #include <metal_stdlib>
 using namespace metal;
 
+#include "../../Renderer/Structures/ShaderTypes.hpp"
+
 struct v2f
 {
     float4 position [[position]];
@@ -16,11 +18,12 @@ struct v2f
     float2 texCoord;
 };
 
-struct VertexData
+// Matches MeshFactory::makeVertexDescriptor()
+struct VertexIn
 {
-    float3 position;
-    float3 normal;
-    float2 texCoord;
+    float3 position [[ attribute( VertexAttributePosition ) ]];
+    float3 normal   [[ attribute( VertexAttributeNormal ) ]];
+    float2 texCoord [[ attribute( VertexAttributeTexCoord ) ]];
 };
 
 struct InstanceData
@@ -37,15 +40,12 @@ struct CameraData
     float3x3 worldNormalTransform;
 };
 
-v2f vertex vertexMain( uint vertexId   [[ vertex_id ]],
+v2f vertex vertexMain( VertexIn vd [[ stage_in ]],
                        uint instanceID [[ instance_id ]],
-                       device const VertexData*   vertexData   [[ buffer( 0 ) ]],
-                       device const InstanceData* instanceData [[ buffer( 1 ) ]],
-                       device const CameraData*   cameraData   [[ buffer( 2 ) ]] )
+                       device const InstanceData* instanceData [[ buffer( BufferIndexInstanceData ) ]],
+                       device const CameraData*   cameraData   [[ buffer( BufferIndexCameraData ) ]] )
 {
     v2f o;
-
-    const device VertexData& vd = vertexData[ vertexId ];
 
     float4 pos = float4( vd.position, 1.0 );
     pos = instanceData[ instanceID ].transform * pos;
